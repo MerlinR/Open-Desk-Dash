@@ -15,6 +15,7 @@ install_service:
 	@echo "Install Service file"
 	cp $(SERVICE_FILE) $(SYSTEMD_LIB_DIR)
 	ln -s $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE) $(SYSTEMD_DIR)/$(SERVICE_FILE) || true
+	systemctl daemon-reload
 	systemctl enable $(SYSTEMD_DIR)/$(SERVICE_FILE)
 	systemctl start $(SERVICE_FILE)
 
@@ -37,6 +38,7 @@ uninstall_service:
 	systemctl disable $(SERVICE_FILE)
 	rm -f $(SYSTEMD_DIR)/$(SERVICE_FILE)
 	rm -f $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE)
+	systemctl daemon-reload
 
 uninstall_app:
 	@echo "Uninstall Service App"

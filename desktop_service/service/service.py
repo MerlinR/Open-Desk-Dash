@@ -10,8 +10,3 @@ for plugin in import_blueprint_plugins():
     app.register_blueprint(plugin)
 
 app.register_blueprint(sys_api)
-
-
-if __name__ == "__main__":
-
-    app.run(debug=False)

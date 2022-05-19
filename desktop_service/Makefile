@@ -14,15 +14,15 @@ install_deps:
 install_service:
 	@echo "Install Service file"
 	cp $(SERVICE_FILE) $(SYSTEMD_LIB_DIR)
-	ln -s $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE) $(SYSTEMD_DIR)/$(SERVICE_FILE)
+	ln -s $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE) $(SYSTEMD_DIR)/$(SERVICE_FILE) || true
 	systemctl enable $(SYSTEMD_DIR)/$(SERVICE_FILE)
 	systemctl start $(SERVICE_FILE)
 
-install_app: uninstall_app
+install_app:
 	@echo "Install Service App"
 	mkdir -p /opt/opendeskdash
 	cp -R service/* /opt/opendeskdash/
-	@systemctl restart $(SERVICE_FILE)  || true
+	@systemctl restart $(SERVICE_FILE) || true
 
 uninstall: uninstall_deps uninstall_app uninstall_service
 	@echo "Uninstalled Desktop Service"

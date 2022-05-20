@@ -1,7 +1,7 @@
 from genericpath import isdir
 import importlib
 from os import listdir
-from os.path import isfile, join
+from os.path import join
 
 
 def plugin_list() -> list:

@@ -1,5 +1,6 @@
-import psutil
 import time
+
+import psutil
 from pyroute2 import NDB
 
 
@@ -9,7 +10,7 @@ def get_def_interface() -> str:
     return if_name
 
 
-def net_usage(inf=None) -> dict:
+def net_usage(inf: str = None) -> dict:
     if not inf:
         inf = get_def_interface()
     net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inf]
@@ -46,7 +47,7 @@ def disk_usage() -> dict:
     return disks
 
 
-def tempetures() -> dict:
+def temperatures() -> dict:
     data = {}
     temps = psutil.sensors_temperatures()
     data["cpu"] = temps["acpitz"][0].current

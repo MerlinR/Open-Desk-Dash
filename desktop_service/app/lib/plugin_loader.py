@@ -12,8 +12,12 @@ def plugin_list() -> list:
 
 
 def import_blueprint_plugins():
-    plugins = [
-        importlib.import_module(f".{plugin}", f"plugins.{plugin}").api
-        for plugin in plugin_list()
-    ]
+    plugins = []
+    for plugin in plugin_list():
+        try:
+            plugins.append(
+                importlib.import_module(f".{plugin}", f"plugins.{plugin}").api
+            )
+        except ModuleNotFoundError as e:
+            print(f"Failed to import {plugin}")
     return plugins

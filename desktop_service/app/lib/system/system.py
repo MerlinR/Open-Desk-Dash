@@ -1,9 +1,10 @@
 #!/user/bin/python3
 import time
-from pprint import pprint
+
 import psutil
 from flask import Blueprint, jsonify, request
-from .utils import net_usage, disk_usage, tempetures, sys_fans, sys_memory
+
+from lib.system.utils import disk_usage, net_usage, sys_fans, sys_memory, temperatures
 
 sys_api = Blueprint("sys", __name__, url_prefix="/sys")
 
@@ -15,7 +16,7 @@ def full():
     data["cpu"] = psutil.cpu_percent()
     data["mem"] = sys_memory()
     data["disks"] = disk_usage()
-    data["tempetures"] = tempetures()
+    data["temperatures"] = temperatures()
     data["fans"] = sys_fans()
     data["net_usage"] = net_usage()
     return (jsonify(data), 200)
@@ -34,7 +35,7 @@ def query_sys():
         elif field == "disks":
             data["disks"] = disk_usage()
         elif field == "uptime":
-            data["tempetures"] = tempetures()
+            data["tempetures"] = temperatures()
         elif field == "fans":
             data["fans"] = sys_fans()
         elif field == "net_usage":
@@ -70,7 +71,7 @@ def disks():
 
 @sys_api.route("/tempetures", methods=["GET"])
 def temp():
-    return (jsonify(tempetures()), 200)
+    return (jsonify(temperatures()), 200)
 
 
 @sys_api.route("/fans", methods=["GET"])

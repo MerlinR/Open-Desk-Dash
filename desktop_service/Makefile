@@ -45,4 +45,4 @@ uninstall_app:
 	rm -rf /opt/opendeskdash/
 
 run:
-	gunicorn --workers 1 --bind 0.0.0.0:5000 --chdir ./service/ service:app
+	gunicorn --workers 1 --bind 0.0.0.0:5000 --chdir ./app/ service:app

@@ -1,0 +1,10 @@
+[plugin]
+title = "Default Dashboard"
+description = "The Defualt Dashboard that is pre-installed within Open Desk Dash."
+github = "https://github.com/MerlinR/Open-Desk-Dash"
+tag = "latest"
+version = "0.0.1"
+api_requirment = false
+
+[owner]
+name = "Merlin Roe"

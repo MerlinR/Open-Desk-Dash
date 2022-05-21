@@ -1,17 +1,10 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
 
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href={{ url_for('static', filename='css/styles.css') }}>
-    </head>
-    
+{% block body %}
+<link rel="stylesheet" href={{ url_for('weather.static', filename='css/styles.css') }}>
 
-    <body class="contain">
-        <div class="title">
-            <h1>Weather</h1>
-        </div>
-
-    </body>
-</html>
+<div class="title">
+    <h1>Weather</h1>
+</div>
+{% endblock %}

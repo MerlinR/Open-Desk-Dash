@@ -5,6 +5,7 @@ api = Blueprint(
     __name__,
     static_folder="./src/static",
     template_folder="./src/templates",
+    static_url_path="/static/def.weather/",
     url_prefix="/weather",
 )
 

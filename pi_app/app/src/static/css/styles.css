@@ -1,0 +1,382 @@
+/*style
+https://www.color-hex.com/color-palette/62769
+#F2F2F2 WhiteIsh
+#E1E7E1 GREY
+#45464b Dark Back
+#22262E Terminal black
+#64676C Terminal black blend
+#4f6978 Alter Dark blue
+#FF6C3D ORANGE
+#F22720 RED
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css");
+
+@font-face {
+  font-family: "Replica";
+  src: local("Replica"), url(../fonts/Replica-Regular.ttf) format("truetype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "Replica";
+  src: local("Replica"), url(../fonts/Replica-Light.ttf) format("truetype");
+  font-weight: lighter;
+}
+@font-face {
+  font-family: "Replica";
+  src: local("Replica"), url(../fonts/Replica-Bold.ttf) format("truetype");
+  font-weight: bold, bolder;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Replica", sans-serif;
+}
+body {
+  transition: all 0.5s ease;
+}
+
+:root {
+  --main-bg-color: #171a1f;
+  --second-bg-color: #22262e;
+  --trim-bg-color: #64676c;
+  --main-title-color: #f2f2f2;
+  --main-text-color: #94a1b2;
+  --blue: #007bff;
+  --indigo: #6610f2;
+  --purple: #6f42c1;
+  --pink: #e83e8c;
+  --red: #d9534f;
+  --orange: #ff6c3d;
+  --yellow: #f0ad4e;
+  --green: #4bbf73;
+  --teal: #20c997;
+  --cyan: #1f9bcf;
+  --white: #f2f2f2;
+  --gray: #919aa1;
+  --gray-dark: #343a40;
+  --primary: #1a1a1a;
+  --secondary: #fff;
+  --success: #4bbf73;
+  --info: #1f9bcf;
+  --warning: #f0ad4e;
+  --danger: #d9534f;
+
+  --home-section-color: #6f42c1;
+  --items-tooltip-color: #d9534f;
+}
+
+body {
+  font-weight: 200;
+  letter-spacing: 1px;
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
+  padding: 25px;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--main-title-color);
+  font-family: "Replica";
+  /* font-family: 'Rubik', sans-serif; */
+}
+
+h1,
+.h1 {
+  font-size: calc(1.325rem + 0.9vw);
+}
+
+@media (min-width: 1200px) {
+  h1,
+  .h1 {
+    font-size: 2rem;
+  }
+}
+
+h2,
+.h2 {
+  font-size: calc(1.3rem + 0.6vw);
+}
+
+@media (min-width: 1200px) {
+  h2,
+  .h2 {
+    font-size: 1.75rem;
+  }
+}
+
+h3,
+.h3 {
+  font-size: calc(1.275rem + 0.3vw);
+}
+
+@media (min-width: 1200px) {
+  h3,
+  .h3 {
+    font-size: 1.5rem;
+  }
+}
+
+h4,
+.h4 {
+  font-size: 1.25rem;
+}
+
+h5,
+.h5 {
+  font-size: 1rem;
+}
+
+h6,
+.h6 {
+  font-size: 0.75rem;
+}
+
+p pre {
+  text-align: left;
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--main-text-color);
+}
+
+.small_font {
+  font-size: 0.75rem;
+  word-wrap: break-word;
+}
+
+hr {
+  border: 1px solid var(--trim-bg-color);
+}
+
+i .list_title{
+  color: var(--main-title-color);
+  font-size: 28px;
+}
+
+.contain {
+  width: 100%;
+  display: flex;
+  margin: 5 auto;
+}
+
+.title {
+  text-align: left;
+  padding: 5px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+
+.box {
+  border-collapse: collapse;
+  text-align: center;
+  padding: 6px;
+  margin: 5px;
+  border: 0px solid var(--trim-bg-color);
+  border-radius: 5px;
+  float: left;
+  width: 100%;
+  position: relative;
+  background-color: var(--second-bg-color);
+}
+
+.table-float {
+  float: left;
+  width: 45%;
+  height: 100%;
+  border-style: hidden;
+}
+
+table {
+  width: 100%;
+  height: 100%;
+  border-style: hidden;
+  border-radius: 4px;
+}
+
+th,
+td {
+  border-left: 2px solid var(--trim-bg-color);
+  border-right: 2px solid var(--trim-bg-color);
+  border-collapse: collapse;
+  text-align: center;
+  padding: 3px;
+  color: var(--main-text-color);
+}
+
+th {
+  color: var(--main-title-color);
+}
+
+.vert_table th {
+  text-align: right;
+  padding: 5px;
+  color: var(--main-title-color);
+}
+
+.vert_table td {
+  text-align: left;
+  padding: 5px;
+  color: var(--main-text-color);
+}
+
+.small_table th td {
+  font-size: 0.5rem;
+  padding: 2px;
+}
+
+.text-normal {
+  color: var(--main-title-color) !important;
+}
+
+.text-light {
+  color: var(--gray) !important;
+}
+
+.text-success {
+  color: var(--green) !important;
+}
+
+.text-info {
+  color: var(--yellow) !important;
+}
+
+.text-warning {
+  color: var(--orange) !important;
+}
+
+.text-danger {
+  color: var(--red) !important;
+}
+
+.text-indigo {
+  color: var(--indigo) !important;
+}
+
+.text-cyan {
+  color: var(--cyan) !important;
+}
+
+.text-pink {
+  color: var(--pink) !important;
+}
+
+.bg-primary {
+  color: var(--white) !important;
+  background-color: var(--blue) !important;
+}
+
+.bg-success {
+  color: var(--white) !important;
+  background-color: var(--green) !important;
+}
+
+.bg-info {
+  color: var(--white) !important;
+  background-color: var(--yellow) !important;
+}
+
+.bg-warning {
+  color: var(--white) !important;
+  background-color: var(--orange) !important;
+}
+
+.bg-danger {
+  color: var(--white) !important;
+  background-color: var(--red) !important;
+}
+
+.bg-cyan {
+  color: var(--white) !important;
+  background-color: var(--cyan) !important;
+}
+
+input {
+  border-collapse: collapse;
+  text-align: left;
+  padding: 2px;
+  margin: 2px;
+  border: 2px solid var(--trim-bg-color);
+  border-radius: 5px;
+  float: left;
+  background-color: var(--white);
+  color: var(--main-bg-color);
+}
+
+select {
+  border-collapse: collapse;
+  text-align: left;
+  padding: 2px;
+  margin: 2px;
+  border: 2px solid var(--trim-bg-color);
+  border-radius: 5px;
+  background-color: var(--white);
+  color: var(--main-bg-color);
+}
+
+button {
+  border-collapse: collapse;
+  text-align: center;
+  padding: 2px;
+  margin: 2px;
+  border: 0px;
+  border-radius: 5px;
+  float: left;
+  background-color: var(--blue);
+  color: var(--main-bg-color);
+  width: 139px;
+  height: 30px;
+}
+
+.button-small {
+  width: 90px;
+  height: 20px;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 4px;
+  font-size: smaller;
+}
+.button-large {
+  width: 2900px;
+  height: 40px;
+  padding: 4px;
+  margin: 4px;
+  border-radius: 6px;
+  font-size: large;
+}
+
+.button-positive {
+  background-color: var(--green);
+}
+
+.button-info {
+  background-color: var(--yellow);
+}
+
+.button-warning {
+  background-color: var(--orange);
+}
+
+.button-danger {
+  background-color: var(--red);
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description=Open Desk Dash
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=gunicorn --workers 4 --bind 0.0.0.0:56970 --chdir /opt/opendeskdash/ service:app
+KillMode=mixed
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

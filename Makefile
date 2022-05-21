@@ -6,7 +6,10 @@ build:
 	$(MAKE) -C desktop_service/make build
 
 install_pi:
-	@echo "Hello World"
+	$(MAKE) -C ./pi_app/ install
+
+run_pi:
+	$(MAKE) -C ./pi_app/ run
 
 install_desktop:
 	$(MAKE) -C ./desktop_service/ install

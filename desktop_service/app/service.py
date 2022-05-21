@@ -1,9 +1,8 @@
 from flask import Flask, jsonify, request
 
-from lib.system import sys_api
-from lib.api.cfg_api import cfg_api
 from app.lib.plugin_loader import import_blueprint_plugins
-
+from lib.api.cfg_api import cfg_api
+from lib.system import sys_api
 
 app = Flask("OpenDeskDash")
 

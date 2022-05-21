@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify
-from config.config import load_secret_key
 from app.lib.plugin_loader import plugin_list
+from config.config import load_secret_key
+from flask import Blueprint, jsonify
 
 cfg_api = Blueprint("cfg", __name__, url_prefix="/api")
 

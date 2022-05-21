@@ -2,7 +2,6 @@ import time
 
 import psutil
 from flask import Blueprint, jsonify, request
-
 from lib.system.utils import disk_usage, net_usage, sys_fans, sys_memory, temperatures
 
 sys_api = Blueprint("sys", __name__, url_prefix="/sys")
@@ -34,7 +33,7 @@ def query_sys():
         elif field == "disks":
             data["disks"] = disk_usage()
         elif field == "uptime":
-            data["tempetures"] = temperatures()
+            data["temperatures"] = temperatures()
         elif field == "fans":
             data["fans"] = sys_fans()
         elif field == "net_usage":
@@ -68,7 +67,7 @@ def disks():
     return (jsonify(disk_usage()), 200)
 
 
-@sys_api.route("/tempetures", methods=["GET"])
+@sys_api.route("/temperatures", methods=["GET"])
 def temp():
     return (jsonify(temperatures()), 200)
 

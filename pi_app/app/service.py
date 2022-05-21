@@ -9,8 +9,7 @@ app = Flask(
     static_folder="./src/static",
 )
 
-
-# app.config.from_object("config.config.Config")
+app.config.from_object("config.config.Config")
 
 app.register_blueprint(home_api)
 

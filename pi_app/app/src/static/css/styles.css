@@ -35,9 +35,6 @@ https://www.color-hex.com/color-palette/62769
   box-sizing: border-box;
   font-family: "Replica", sans-serif;
 }
-body {
-  transition: all 0.5s ease;
-}
 
 :root {
   --main-bg-color: #171a1f;
@@ -70,6 +67,7 @@ body {
 }
 
 body {
+  transition: all 0.5s ease;
   font-weight: 200;
   letter-spacing: 1px;
   background-color: var(--main-bg-color);
@@ -95,7 +93,6 @@ h6,
   margin-bottom: 0.5rem;
   font-weight: 600;
   line-height: 1.2;
-  color: var(--main-title-color);
   font-family: "Replica";
   /* font-family: 'Rubik', sans-serif; */
 }
@@ -245,6 +242,10 @@ th {
   padding: 2px;
 }
 
+.text-invert {
+  color: var(--main-bg-color) !important;
+}
+
 .text-normal {
   color: var(--main-title-color) !important;
 }
@@ -379,4 +380,20 @@ button {
 
 .button-danger {
   background-color: var(--red);
+}
+
+#digital-clock {
+  position: absolute;
+  top: 35%;
+  left: 22%;
+  font-size: 80px;
+  letter-spacing: 3px;
+}
+
+#digital-date {
+  position: absolute;
+  top: 53%;
+  left: 40%;
+  font-size: 20px;
+  letter-spacing: 3px;
 }

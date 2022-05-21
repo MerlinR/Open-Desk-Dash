@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href={{ url_for('static', filename='css/styles.css') }}>
-	<script src={{ url_for('static', filename='js/test.js') }}></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href={{ url_for('static', filename='css/styles.css') }}>
+    </head>
+    
 
-<body class="contain">
-    <div class="title">
-        <h1>Open Desk Dash</h1>
-    </div>
-	<button onclick="revealMessage()">Click me!</button>
-	<div id="hiddenMessage" style="display:none">
-		<p>You are going on a cruise</p>
-		<button id="countDownButton" onclick="countDown()">10</button>
-	</div>
-</body>
+    <body class="contain" style="background-image: url('https://giffiles.alphacoders.com/209/209343.gif');
+    background-size: cover ;">
+        <div class="title text-invert">
+            <h1>Open Desk Dash</h1>
+        </div>
+        
+        <div id="digital-clock" class="text-invert ">
+            <script src={{ url_for('static', filename='js/clock.js') }}></script>
+        </div>
+        <div id="digital-date" class="text-invert ">
+            <script src={{ url_for('static', filename='js/clock.js') }}></script>
+        </div>
+    </body>
 </html>

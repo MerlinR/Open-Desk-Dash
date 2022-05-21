@@ -1,4 +1,5 @@
-SERVICE_FILE=opendeskdash.service
+INSTALL_PATH=/opt/opendeskdashapi/
+SERVICE_FILE=opendeskdashapi.service
 SYSTEMD_DIR=/etc/systemd/system
 SYSTEMD_LIB_DIR=/lib/systemd/system/
 
@@ -21,8 +22,8 @@ install_service:
 
 install_app:
 	@echo "Install Service App"
-	mkdir -p /opt/opendeskdash
-	cp -R service/* /opt/opendeskdash/
+	mkdir -p $(INSTALL_PATH)
+	cp -R service/* $(INSTALL_PATH)
 	@systemctl restart $(SERVICE_FILE) || true
 
 uninstall: uninstall_deps uninstall_app uninstall_service
@@ -42,7 +43,7 @@ uninstall_service:
 
 uninstall_app:
 	@echo "Uninstall Service App"
-	rm -rf /opt/opendeskdash/
+	rm -rf $(INSTALL_PATH)
 
 run:
-	gunicorn --workers 1 --bind 0.0.0.0:5000 --chdir ./app/ service:app
+	gunicorn --workers 1 --bind 0.0.0.0:5000 --chdir ./app/ service:app --log-level debug

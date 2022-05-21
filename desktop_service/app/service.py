@@ -8,11 +8,11 @@ app = Flask("OpenDeskDash")
 
 app.config.from_object("config.config.Config")
 
-for plugin in import_blueprint_plugins():
-    app.register_blueprint(plugin)
-
 app.register_blueprint(sys_api)
 app.register_blueprint(cfg_api)
+
+for plugin in import_blueprint_plugins():
+    app.register_blueprint(plugin)
 
 
 @app.before_request

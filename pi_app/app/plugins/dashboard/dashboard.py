@@ -10,6 +10,6 @@ api = Blueprint(
 )
 
 
-@api.route("/", methods=["GET"])
+@api.route("/def.dashboard", methods=["GET"])
 def dashboard():
-    return render_template("def_dashboard.html")
+    return render_template("dashboard.html")

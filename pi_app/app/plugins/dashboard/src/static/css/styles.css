@@ -1,9 +1,9 @@
 #digital-clock {
     text-align: right;
     position: absolute;
-    width: 70%;
-    top: 66%;
-    left: 29%;
+    width: 560px;
+    top: 320px;
+    left: 230px;
     font-size: 80px;
     letter-spacing: 6px;
   }
@@ -11,9 +11,9 @@
   #digital-date {
     text-align: right;
     position: absolute;
-    width: 40%;
-    left: 58%;
-    top: 84%;
+    width: 320px;
+    left: 462px;
+    top: 400px;
     font-size: 20px;
     letter-spacing: 3px;
   }

@@ -64,12 +64,53 @@ https://www.color-hex.com/color-palette/62769
 }
 
 body {
-  transition: all 0.75s ease;
   font-weight: 200;
   letter-spacing: 1px;
   background-color: var(--main-bg-color);
   color: var(--main-text-color);
   padding: 25px;
+}
+
+#fadein{
+  -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 1s; /* Firefox < 16 */
+  animation: fadein 1s;
+}
+
+#fadeout{
+  -webkit-animation: fadeout 1s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadeout 1s; /* Firefox < 16 */
+  animation: fadeout 1s;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeout{
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+/* Firefox < 16 */
+@-moz-keyframes fadeout {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadeout {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 h1,

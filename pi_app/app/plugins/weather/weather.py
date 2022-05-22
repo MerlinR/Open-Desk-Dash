@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, render_template
 
 api = Blueprint(
     "weather",
@@ -6,10 +6,10 @@ api = Blueprint(
     static_folder="./src/static",
     template_folder="./src/templates",
     static_url_path="/static/def.weather/",
-    url_prefix="/weather",
+    url_prefix="/",
 )
 
 
-@api.route("/", methods=["GET"])
-def dashboard():
+@api.route("/def.weather", methods=["GET"])
+def weather():
     return render_template("weather.html")

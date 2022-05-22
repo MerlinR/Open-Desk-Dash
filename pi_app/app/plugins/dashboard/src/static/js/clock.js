@@ -30,8 +30,8 @@ function GenTime() {
 function GenDate() {
   // Creating object of the Date class
   var date = new Date();
-  var day = date.getDay();
-  var month = date.getMonth();
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
   var year = date.getFullYear();
 
   day = update(day);

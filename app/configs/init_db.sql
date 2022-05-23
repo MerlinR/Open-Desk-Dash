@@ -1,0 +1,21 @@
+DROP TABLE IF EXISTS config;
+DROP TABLE IF EXISTS plugins;
+
+CREATE TABLE config (
+    title TEXT NOT NULL,
+    pages TEXT NOT NULL,
+    version TEXT NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE plugins (
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    owner TEXT NOT NULL,
+    github TEXT NOT NULL,
+    tag TEXT NOT NULL,
+    version TEXT NOT NULL,
+    pages TEXT NOT NULL,
+    added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

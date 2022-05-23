@@ -4,10 +4,9 @@ class Config(object):
     TEMPLATES_AUTO_RELOAD = True
     SECRET_KEY = "OpenDeskDash"
     FLASK_SECRET = SECRET_KEY
-    # DB_HOST = "database"
+    DATABASE_LOCATION = "configs/dbs/"
 
 
 class ProductionConfig(Config):
     DEVELOPMENT = False
     DEBUG = False
-    # DB_HOST = "my.production.database"

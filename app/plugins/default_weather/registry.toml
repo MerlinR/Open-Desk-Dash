@@ -1,0 +1,7 @@
+[plugin]
+title = "Default Weather"
+description = "The Defualt Weather that is pre-installed within Open Desk Dash."
+github = "https://github.com/MerlinR/Open-Desk-Dash"
+tag = "latest"
+version = "0.0.1"
+

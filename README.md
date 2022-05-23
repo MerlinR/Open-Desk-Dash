@@ -1,19 +1,22 @@
 # Open Desk Dash
-Open Source Desk Dashboard, an Pi desk dashboard that can interface to a running computer to displays system information and other information the user may wish.
-The Dash has two components:
+Open Source Desk Dashboard, a barebone hackable WebUI desk dashboard with Plugin support. Designed to be simple, elegant and easily customisable to fit any need.
+Plugins can be easily created, installed and customised. Using Flask and blueprint's to allow an easy way designed Web UI pages that will seemly integrate into the Dashboard and control.
 
-## Pi display
-The Pi display service, this can run independently to act as a dashboard.
+Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support No control, Touch screen, Integrated buttons. Screen size is irrelevant as individual plugins can support any screen size they desire
 
-## Desktop Service
-A service that runs on the your desktop that acts as an interface to the PI, so it can query the desktop for information.
 
-### Getting API key
-The API key is auto generated on first run, this is printed our during that. If missed a query can be ran locally to view the key, as all API call's can be made locally without a key.
+## Features
+- Configuration
+    - Usage configurable
+- Plugins
+    - Easily Modular with Plugins
+    - Auto Plugin Update's via github
+    - Manual or Automatic install via web interface and github
+    - Individual Plugin Database's for customisation
+    - framework for plugin Configuration WebUI page
+- Theme's
+    - Entire Dash theme overwritable
 
-```
-curl localhost:5000/api/key
-```
 
 ### Plugins
 The desktop service API can easily be extended with Plugins, by creating a flask blueprint and inserting the module into the "plugins" directory.

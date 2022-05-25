@@ -1,0 +1,25 @@
+<div class="app">
+  <div id="sidenav">
+    <div class="wrapper">
+      <div class="logo">Config's</div>
+      <div class="menu">
+        <ul>
+          <li><a href="/config">Base</a></li>
+          <li><a href="/config/plugins">Plugins</a></li>
+          <li>
+            Setting's
+            <ul>
+              {% for plugin in config.plugins.values() %} {% if
+              plugin['config_page'] %}
+              <li>
+                <a href="/config/{{plugin['name']}}">{{plugin['title']}}</a>
+              </li>
+              {% endif %} {% endfor %}
+            </ul>
+          </li>
+          <li><a href="/">Dash Mode</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

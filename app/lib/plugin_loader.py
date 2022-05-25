@@ -45,7 +45,7 @@ def import_blueprint(module_name: str, registry_name: str) -> Blueprint:
             print(f"{module_name} has no setup function")
             plugin_setup = None
         plugin_api.static_folder = "./src/static"
-        plugin_api.template_folder = "./src/templates"
+        plugin_api.template_folder = "./src"
         plugin_api.url_prefix = f"/{module_name}"
     except ModuleNotFoundError as e:
         print(f"Failed to import {module_name}")
@@ -71,6 +71,7 @@ def import_plugins() -> Dict[str, Blueprint]:
             "path": get_plugin_path(plugin),
             "setup": plugin_import[0],
             "blueprint": plugin_import[1],
+            **registry,
         }
 
     return plugins
@@ -78,7 +79,6 @@ def import_plugins() -> Dict[str, Blueprint]:
 
 def load_plugins(app: Flask) -> list:
     app.config["plugins"] = {}
-    app.config["pages"] = []
 
     for plugin, data in import_plugins().items():
         app.config["plugins"][plugin] = data
@@ -87,11 +87,17 @@ def load_plugins(app: Flask) -> list:
             data["setup"](app)
 
         app.register_blueprint(data["blueprint"])
-
-        app.config["pages"] += [
+        pages = [
             str(p)
             for p in app.url_map.iter_rules()
             if data["name"] in str(p)
             and "static" not in str(p)
             and "config" not in str(p)
         ]
+
+        app.config["plugins"][plugin]["config_page"] = None
+        for p in app.url_map.iter_rules():
+            if data["name"] in str(p) and "config" in str(p):
+                app.config["plugins"][plugin]["config_page"] = str(p)
+
+        app.config["plugins"][plugin]["pages"] = pages

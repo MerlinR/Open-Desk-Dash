@@ -1,16 +1,22 @@
-<!DOCTYPE html>
+{% extends "config_base.html" %} {% block title %}Base {% endblock %}
+{%block body %}
 
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href={{ url_for('static', filename='css/styles.css') }}>
-    </head>
-    
-
-    <body class="contain">
-        <div class="title text-invert">
-            <h1>Configuration</h1>
-        </div>
-    </body>
-</html>
+<div class="title">
+  <h1>Base Setting</h1>
+</div>
+<hr>
+<form action="/config" method= "POST">
+  <br>
+  <div style="float:left;width: 100%;">
+    <label for="transition">Transition Speed</label>
+    <input type="number" name="transition" min="5" value="{{config.config.transition}}">
+  </div>
+  <br>
+  <div style="float:left;width: 100%;">
+    <label for="page_order">Page Order</label>
+    <input type="text" name="page_order" value="{{config.config.pages}}"/></input>
+  </div>
+  
+  <button class="button-positive" type="submit">Save</button><br>
+</form>
+{% endblock %}

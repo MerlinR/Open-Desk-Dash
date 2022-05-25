@@ -1,14 +1,24 @@
 from flask import Blueprint, Flask, current_app, g, render_template
 
-api = Blueprint("dashboard", __name__)
+api = Blueprint("default_dashboard", __name__)
 
 
 def setup(app: Flask):
     with app.app_context():
-        current_app.create_db()
+        current_app.create_config(
+            "title INTEGER NOT NULL, imageLink TEXT NOT NULL",
+            {
+                "title": "Open Desk Dash",
+                "imageLink": "https://giffiles.alphacoders.com/209/209343.gif",
+            },
+        )
 
 
 @api.route("/", methods=["GET"])
 def dashboard():
-    print(current_app.connect_db())
-    return render_template("dashboard.html")
+    return render_template("default_dashboard/dashboard.html")
+
+
+@api.route("/config", methods=["GET", "POST"])
+def dashboard_config():
+    return render_template("default_dashboard/config.html")

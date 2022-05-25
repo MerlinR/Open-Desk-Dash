@@ -23,30 +23,35 @@ load_plugins(app)
 
 @app.route("/", methods=["GET"])
 def home():
-    return redirect(app.config["pages"][0])
+    return redirect(app.config["config"]["pages"][0])
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return redirect(app.config["config"]["pages"][0])
 
 
 @app.route("/next", methods=["GET"])
 def next_dash():
     prev_page = url_parse(request.referrer)
     try:
-        indx = app.config["pages"].index(prev_page.path)
+        indx = app.config["config"]["pages"].index(prev_page.path)
         indx += 1
-        if indx == len(app.config["pages"]):
+        if indx == len(app.config["config"]["pages"]):
             indx = 0
     except IndexError:
         indx = 0
-    return redirect(app.config["pages"][indx])
+    return redirect(app.config["config"]["pages"][indx])
 
 
 @app.route("/prev", methods=["GET"])
 def prev_dash():
     try:
         prev_page = url_parse(request.referrer)
-        indx = app.config["pages"].index(prev_page.path)
+        indx = app.config["config"]["pages"].index(prev_page.path)
         indx -= 1
         if indx < 0:
-            indx = len(app.config["pages"]) - 1
+            indx = len(app.config["config"]["pages"]) - 1
     except IndexError:
         indx = 0
-    return redirect(app.config["pages"][indx])
+    return redirect(app.config["config"]["pages"][indx])

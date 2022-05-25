@@ -2,18 +2,24 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function pageChange(direction, ms) {
+async function autoTransition() {
+  await pageChange("/next");
+}
+
+async function pageChange(direction) {
   var blinking = document.getElementById("fadein");
   blinking.id = "fadeout";
-  await sleep(ms);
+  await sleep(1850);
   window.location.href = window.location.origin + direction;
 }
 
 document.addEventListener("keydown", async function (event) {
   if (event.key === "ArrowRight") {
-    await pageChange("/next", 850);
+    await pageChange("/next");
   } else if (event.key === "ArrowLeft") {
-    await pageChange("/prev", 850);
+    await pageChange("/prev");
+  } else if (event.key === "ArrowUp") {
+    window.location.href = window.location.origin + "/config/";
   }
 });
 
@@ -41,16 +47,16 @@ document.addEventListener("touchend", async function (event) {
     /*most significant*/
     if (xDiff > 0) {
       console.log("Right Swipe");
-      await pageChange("/next", 850);
+      await pageChange("/next");
     } else {
       console.log("Left Swipe");
-      await pageChange("/prev", 850);
+      await pageChange("/prev");
     }
   } else {
     if (yDiff > 0) {
       console.log("Down Swipe");
     } else {
-      console.log("Up Swipe");
+      window.location.href = window.location.origin + "/config/";
     }
   }
   /* reset values */

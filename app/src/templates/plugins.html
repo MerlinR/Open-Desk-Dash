@@ -1,16 +1,20 @@
-<!DOCTYPE html>
+{% extends "config_base.html" %} {% block title %}Base {% endblock %} {%block
+body %}
 
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href={{ url_for('static', filename='css/styles.css') }}>
-    </head>
-    
+<div class="title">
+  <h1>Plugins</h1>
+</div>
 
-    <body class="contain">
-        <div class="title text-invert">
-            <h1>Plugins</h1>
-        </div>
-    </body>
-</html>
+{% for plugin in config.plugins.values() %}
+<div>
+  <a href="{{plugin['github']}}"><h4>{{plugin['title']}}</h4></a>
+  {{plugin['author']}} - {{plugin['version']}}
+  <p>{{plugin['description']}}</p>
+  <br />
+  <a href="/config/{{plugin['name']}}">Setting's</a> - Pages: {{",
+  ".join(plugin['pages'])}}
+</div>
+
+<hr />
+
+{% endfor %} {% endblock %}

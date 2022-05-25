@@ -61,6 +61,7 @@ https://www.color-hex.com/color-palette/62769
   --info: #1f9bcf;
   --warning: #f0ad4e;
   --danger: #d9534f;
+  --transitionSpeed: 2s;
 }
 
 body {
@@ -71,46 +72,70 @@ body {
   padding: 25px;
 }
 
-#fadein{
-  -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
-  -moz-animation: fadein 1s; /* Firefox < 16 */
-  animation: fadein 1s;
+#fadein {
+  -webkit-animation: fadein var(--transitionSpeed); /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein var(--transitionSpeed); /* Firefox < 16 */
+  animation: fadein var(--transitionSpeed);
 }
 
-#fadeout{
-  -webkit-animation: fadeout 1s; /* Safari, Chrome and Opera > 12.1 */
-  -moz-animation: fadeout 1s; /* Firefox < 16 */
-  animation: fadeout 1s;
+#fadeout {
+  -webkit-animation: fadeout var(--transitionSpeed); /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadeout var(--transitionSpeed); /* Firefox < 16 */
+  animation: fadeout var(--transitionSpeed);
 }
 
 @keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 /* Firefox < 16 */
 @-moz-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 /* Safari, Chrome and Opera > 12.1 */
 @-webkit-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-@keyframes fadeout{
-  from { opacity: 1; }
-  to   { opacity: 0; }
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 /* Firefox < 16 */
 @-moz-keyframes fadeout {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 /* Safari, Chrome and Opera > 12.1 */
 @-webkit-keyframes fadeout {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 h1,
@@ -118,7 +143,7 @@ h2,
 h3,
 h4,
 h5,
-h6{
+h6 {
   text-transform: uppercase;
   letter-spacing: 3px;
   margin-top: 0;
@@ -144,7 +169,7 @@ h2 {
 }
 
 @media (min-width: 1200px) {
-  h2{
+  h2 {
     font-size: 1.75rem;
   }
 }
@@ -154,7 +179,7 @@ h3 {
 }
 
 @media (min-width: 1200px) {
-  h3{
+  h3 {
     font-size: 1.5rem;
   }
 }
@@ -164,7 +189,7 @@ h4,
   font-size: 1.25rem;
 }
 
-h5{
+h5 {
   font-size: 1rem;
 }
 
@@ -187,6 +212,8 @@ p pre {
 
 hr {
   border: 1px solid var(--trim-bg-color);
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 i {
@@ -199,6 +226,18 @@ table {
   height: 100%;
   border-style: hidden;
   border-radius: 4px;
+}
+
+a {
+  text-decoration: none;
+}
+a:hover,
+a:focus,
+a:active,
+a.visited,
+a.link {
+  text-decoration: none;
+  color: var(--red);
 }
 
 th,
@@ -231,7 +270,6 @@ th {
   font-size: 0.5rem;
   padding: 2px;
 }
-
 
 input {
   border-collapse: collapse;
@@ -270,19 +308,32 @@ button {
   height: 30px;
 }
 
+footer {
+  width: 100%;
+  text-align: center;
+  padding: 3px;
+  background-color: var(--second-bg-color);
+}
+
 .contain {
   width: 100%;
-  display: flex;
+  height: 100%;
+
   margin: 5 auto;
 }
 
+.containconfig {
+  width: 100% - 150px;
+  height: 100%;
+  margin: 5 auto;
+  margin-left: 150px;
+}
+
 .title {
-  text-align: left;
   padding: 5px;
   width: 100%;
   margin: 0 auto;
 }
-
 
 .box {
   border-collapse: collapse;
@@ -405,4 +456,67 @@ button {
 
 .button-danger {
   background-color: var(--red);
+}
+
+input,
+label {
+  display: block;
+}
+
+/* ------------ Sidenav CSS ------------- */
+#sidenav {
+  position: fixed;
+  width: 150px;
+  height: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 99999;
+  background: #101010;
+}
+
+#sidenav .logo {
+  width: 100%;
+  padding: 20px;
+  display: block;
+  color: var(--main-title-color);
+  text-transform: uppercase;
+}
+#sidenav .menu {
+  position: static;
+}
+#sidenav .menu ul {
+  list-style: none;
+  background: #101010;
+  padding: 10% 0;
+  margin: 0;
+}
+#sidenav .menu ul li {
+  padding: 6px 14%;
+}
+#sidenav .menu ul li a {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 300;
+  display: block;
+}
+#sidenav .menu ul li a:hover {
+  color: rgba(255, 255, 255, 0.5);
+}
+#sidenav .menu ul li a.logout:hover {
+  color: var(--red);
+}
+#sidenav .menu ul li ul {
+  list-style: none;
+  margin: 10px auto 0;
+  padding: 10px 15px;
+  border-top: solid 1px rgba(255, 255, 255, 0.08);
+  border-bottom: solid 1px rgba(255, 255, 255, 0.08);
+}
+#sidenav .menu ul li ul li {
+  padding: 6px 3px;
+}
+#sidenav .menu ul li ul li a {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
 }

@@ -85,9 +85,15 @@ def connect_db() -> sqlite3.Connection:
     return sqlite3.connect(db_path)
 
 
-def create_config(schema: str, init_data: dict = None):
+def create_config(schema: dict, init_data: dict = None):
     """
-    Creates a Database in standard location with the plugin's name, called with a SQL schema and optionally initial Data
+    Creates a Database in standard location with the plugin's name, called with a config options and optionally initial data.
+    The Config schema converts to SQL types therefore, must be either str,int,float or None(BLOB).
+    {
+        "title": int,
+        "imageLink": str,
+    },
+    The create_config will not overwrite existing data, and therefore can be repeated inside setup.
     """
     calframe = inspect.getouterframes(inspect.currentframe(), 2)
 
@@ -98,7 +104,16 @@ def create_config(schema: str, init_data: dict = None):
     if not name:
         print("No DB name to create")
         return
-    sql = f"CREATE TABLE IF NOT EXISTS {name} (id INTEGER PRIMARY KEY, {schema});"
+
+    sql_schema_list = []
+    types = {str: "TEXT", int: "INTEGER", float: "FLOAT", None: "BLOB"}
+    for key, value in schema.items():
+        if value not in [str, int, float, None]:
+            print(f"Error: {name} Config {key} attempting to save as {value}")
+        else:
+            sql_schema_list.append(f"{key} {types[value]}")
+
+    sql = f"CREATE TABLE IF NOT EXISTS {name} (id INTEGER PRIMARY KEY, {','.join(sql_schema_list)});"
 
     db_path = os.path.join(current_app.config["DATABASE_LOCATION"], "config_storage.db")
 

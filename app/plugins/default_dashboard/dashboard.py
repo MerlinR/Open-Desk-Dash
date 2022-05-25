@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, current_app, g, render_template
+from flask import Blueprint, Flask, current_app, render_template
 
 api = Blueprint("default_dashboard", __name__)
 
@@ -6,7 +6,10 @@ api = Blueprint("default_dashboard", __name__)
 def setup(app: Flask):
     with app.app_context():
         current_app.create_config(
-            "title INTEGER NOT NULL, imageLink TEXT NOT NULL",
+            {
+                "title": int,
+                "imageLink": str,
+            },
             {
                 "title": "Open Desk Dash",
                 "imageLink": "https://giffiles.alphacoders.com/209/209343.gif",

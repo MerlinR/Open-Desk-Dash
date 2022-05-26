@@ -3,13 +3,14 @@ from werkzeug.urls import url_parse
 
 from app.config import cfg_api
 from app.lib.db_control import setup_DB_control
-from app.lib.plugin_loader import load_plugins
+from app.lib.plugin_control import pluginManager
 
 app = Flask(
     "OpenDeskDash",
     template_folder="./src/templates",
     static_folder="./src/static",
 )
+PLUGIN_DIR = "plugins"
 
 app.config.from_object("configs.config.Config")
 app.register_blueprint(cfg_api)
@@ -17,8 +18,8 @@ app.config["path_to_name"] = {}
 
 with app.app_context():
     setup_DB_control()
-
-load_plugins(app)
+    app.config["plugins"] = pluginManager(app, PLUGIN_DIR)
+    app.config["plugins"].run_plugins_setup()
 
 
 @app.route("/", methods=["GET"])

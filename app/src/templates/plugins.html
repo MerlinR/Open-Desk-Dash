@@ -1,10 +1,28 @@
 {% extends "config_base.html" %} {% block title %}Base {% endblock %} {%block
 body %}
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"
+></script>
 
-<div class="title">
+<div class="title" style="display: flex">
   <h1>Plugins</h1>
+  <button
+    data-target="#myModal"
+    role="button"
+    class="btn"
+    data-toggle="modal"
+    class="btn"
+    style="width: 50px; height: 33px; float: right"
+  >
+    <i class="bx bxs-plus-circle"></i>
+  </button>
 </div>
-
+<hr />
 {% for plugin in config.plugins.values() %}
 <div>
   <a href="{{plugin['github']}}"><h4>{{plugin['title']}}</h4></a>
@@ -17,4 +35,34 @@ body %}
 
 <hr />
 
-{% endfor %} {% endblock %}
+{% endfor %}
+<div
+  class="modal modal-fade"
+  id="myModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="myModalLabel">Install Plugin</h3>
+      </div>
+      <form action="/config/plugins" method="POST">
+      <div class="modal-body">
+        <h5>Github Link</h5>
+        <input name="github_link" type="text" size="40"></input>
+      </div>
+      <p>
+      <div class="modal-footer">
+        <button class="button-positive" type="submit">Install</button>
+      </form>
+      <button class="button-danger" data-dismiss="modal" aria-hidden="true">
+        Close
+      </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

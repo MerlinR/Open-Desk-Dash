@@ -31,3 +31,10 @@ The blueprint module directory name and primary python script must have the same
 ```
 api = Blueprint("example", __name__, url_prefix="/example")
 ```
+
+Plugins
+ - Track plugins in DB
+ - Check for version updates
+ - Install from github
+ - Validate on toml
+ - Delete plugins

@@ -1,7 +1,6 @@
 from flask import Blueprint, current_app, redirect, render_template, request
 
 from lib.db_control import gather_config_db, get_config_db
-from lib.plugin_control import plugin_install
 
 cfg_api = Blueprint(
     "config",
@@ -43,7 +42,15 @@ def config():
 
 @cfg_api.route("/<plugin>")
 def plugin_config(plugin):
-    if current_app.config["plugins"][plugin]["config_page"]:
-        return redirect(current_app.config["plugins"][plugin]["config_page"])
+    if current_app.config["plugins"].plugins[plugin]["config_page"]:
+        return redirect(current_app.config["plugins"].plugins[plugin]["config_page"])
     else:
         return redirect("/config/")
+
+
+@cfg_api.route("/plugins", methods=["GET", "POST"])
+def plugins():
+    if request.method == "POST":
+        link = request.form["github_link"]
+        # plugin_install(link)
+    return render_template("plugins.html")

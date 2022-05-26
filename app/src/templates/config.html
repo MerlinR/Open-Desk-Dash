@@ -14,9 +14,17 @@
   <br>
   <div style="float:left;width: 100%;">
     <label for="page_order">Page Order</label>
-    <input type="text" name="page_order" value="{{config.config.pages}}"/></input>
+    <input type="text" name="page_order" value="{{','.join(config.config.pages)}}"/></input>
   </div>
-  
+  <div style="float:left;width: 100%;">
+    <label for="page_order">Auto Update Plugins</label>
+    {% if config.config.autoUpdatePlugins %}
+      <input type="checkbox" name="autoUpdate" checked/>
+    {% else %}
+      <input type="checkbox" name="autoUpdate"/>
+    {% endif %}
+  </div>
   <button class="button-positive" type="submit">Save</button><br>
 </form>
 {% endblock %}
+

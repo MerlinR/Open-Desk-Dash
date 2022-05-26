@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, redirect, render_template, request
 
 from lib.db_control import gather_config_db, get_config_db
+from lib.plugin_control import plugin_install
 
 cfg_api = Blueprint(
     "config",
@@ -15,14 +16,19 @@ def config():
         try:
             transition_speed = request.form["transition"]
             page_order = request.form["page_order"]
+            autoUpdate = None
+            if request.form.get("autoUpdate"):
+                autoUpdate = True
+            else:
+                autoUpdate = False
+
             connection = get_config_db()
 
             cur = connection.cursor()
             cur.execute(
-                "UPDATE config SET transition = ?, pages = ? WHERE id = 1 ",
-                (transition_speed, page_order),
+                "UPDATE config SET transition = ?, pages = ?, autoUpdatePlugins = ? WHERE id = 1 ",
+                (transition_speed, page_order, autoUpdate),
             )
-
             connection.commit()
         except Exception as e:
             print("Failed to save config")
@@ -41,8 +47,3 @@ def plugin_config(plugin):
         return redirect(current_app.config["plugins"][plugin]["config_page"])
     else:
         return redirect("/config/")
-
-
-@cfg_api.route("/plugins", methods=["GET"])
-def plugins():
-    return render_template("plugins.html")

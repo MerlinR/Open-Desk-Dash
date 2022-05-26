@@ -42,21 +42,20 @@ document.addEventListener("touchend", async function (event) {
 
   var xDiff = xDown - event.changedTouches[0].clientX;
   var yDiff = yDown - event.changedTouches[0].clientY;
-
-  if (Math.abs(xDiff) > Math.abs(yDiff)) {
-    /*most significant*/
-    if (xDiff > 0) {
-      console.log("Right Swipe");
-      await pageChange("/next");
+  if (Math.abs(xDiff) > 20 || xMath.abs(yDiff) > 20) {
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+      /*most significant*/
+      if (xDiff > 0) {
+        await pageChange("/next");
+      } else {
+        await pageChange("/prev");
+      }
     } else {
-      console.log("Left Swipe");
-      await pageChange("/prev");
-    }
-  } else {
-    if (yDiff > 0) {
-      console.log("Down Swipe");
-    } else {
-      window.location.href = window.location.origin + "/config/";
+      if (yDiff > 0) {
+        console.log("Down Swipe");
+      } else {
+        window.location.href = window.location.origin + "/config/";
+      }
     }
   }
   /* reset values */

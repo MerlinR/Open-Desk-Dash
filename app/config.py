@@ -54,3 +54,9 @@ def plugins():
         link = request.form["github_link"]
         current_app.config["plugins"].plugin_install(link)
     return render_template("plugins.html")
+
+
+@cfg_api.route("/delete/<plugin>", methods=["GET"])
+def delete_plugin(plugin):
+    current_app.config["plugins"].plugin_delete(plugin)
+    return redirect("/config/plugins")

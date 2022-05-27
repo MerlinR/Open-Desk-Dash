@@ -1,5 +1,6 @@
 import importlib
 import os
+import shutil
 import sqlite3
 from pathlib import Path
 from typing import Callable, Dict, Union
@@ -22,12 +23,18 @@ class pluginManager:
 
     def find_plugins(self) -> Dict[str, str]:
         plugins = {}
-        for dir in os.listdir(self.plugins_dir):
-            full_path = os.path.join(self.plugins_dir, dir)
+        for direct in os.listdir(self.plugins_dir):
+            full_path = os.path.join(self.plugins_dir, direct)
             if os.path.isdir(full_path):
                 for file in Path(full_path).rglob("registry.toml"):
-                    plugins[dir] = os.path.dirname(file)
+                    plugins[direct] = os.path.dirname(file)
         return plugins
+
+    def find_plugin_root_dir(self, name: str) -> str:
+        for direct in os.listdir(self.plugins_dir):
+            print(direct)
+            if direct == name:
+                return os.path.join(self.plugins_dir, direct)
 
     def import_plugins(self):
         for name, path in self.find_plugins().items():
@@ -139,7 +146,7 @@ class pluginManager:
                     sql = f"DELETE FROM plugins WHERE id = {row['id']};"
                     cur.execute(sql)
                     connection.commit()
-                    self.plugins.pop(row["name"])
+                    self.plugins.pop(row["name"], None)
 
         except Exception as e:
             print("Failed to load plugin DB")
@@ -193,10 +200,18 @@ class pluginManager:
         pluginName = os.path.basename(os.path.dirname(registry_path))
 
         new_plugin_path = os.path.join(self.plugins_dir, f"{accountName}_{pluginName}")
-        os.rename(tmp_repo_path, new_plugin_path)
+        if os.path.exists(new_plugin_path):
+            print("Plugin Already exists, skipping")
+            shutil.rmtree(tmp_repo_path)
+        else:
+            os.rename(tmp_repo_path, new_plugin_path)
 
-    # def plugin_delete(self, name: str):
-    #     print("Deleting")
+    def plugin_delete(self, name: str):
+        path = self.find_plugin_root_dir(name)
+        if os.path.exists(path):
+            print("Plugin exists, Deleting")
+            shutil.rmtree(path)
+            self.remove_missing_plugins()
 
     # def plugin_version_check(self, name: str):
     #     print("Version Check")

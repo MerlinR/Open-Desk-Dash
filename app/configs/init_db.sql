@@ -18,6 +18,7 @@ CREATE TABLE plugins (
     author TEXT NOT NULL,
     github TEXT NOT NULL,
     autoUpdate INTEGER NOT NULL,
+    path TEXT NOT NULL,
     tag TEXT NOT NULL,
     version TEXT NOT NULL,
     added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -29,8 +29,12 @@ body %}
   {{plugin['author']}} - {{plugin['version']}}
   <p>{{plugin['description']}}</p>
   <br />
-  <a href="/config/{{plugin['name']}}">Setting's</a> - Pages: {{",
+  {% if plugin['config_page'] %}
+  <a href="/config/{{plugin['name']}}">Setting's</a> - 
+  {% endif %}
+  Pages: {{",
   ".join(plugin['pages'])}}
+
 </div>
 
 <hr />

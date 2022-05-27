@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, redirect, render_template, request
 
-from lib.db_control import gather_config_db, get_config_db
+from app.lib.db_control import gather_config_db, get_config_db
 
 cfg_api = Blueprint(
     "config",
@@ -52,5 +52,5 @@ def plugin_config(plugin):
 def plugins():
     if request.method == "POST":
         link = request.form["github_link"]
-        # plugin_install(link)
+        current_app.config["plugins"].plugin_install(link)
     return render_template("plugins.html")

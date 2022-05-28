@@ -32,10 +32,8 @@ body %}
   {% if plugin['config_page'] %}
   <a href="/config/{{plugin['name']}}">Setting's</a> - 
   {% endif %}
-  <p>
   Pages: {{",
   ".join(plugin['pages'])}}
-  </p>
   <div> <a href="/config/delete/{{plugin['name']}}"><button class="button-danger button-small">Delete</button></a></div>
 </div>
 

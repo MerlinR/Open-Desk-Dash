@@ -5,7 +5,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=gunicorn --workers 4 --bind 0.0.0.0:56970 --chdir /opt/opendeskdash/ service:app
+ExecStart=gunicorn --workers 4 --bind 0.0.0.0:56970 --chdir /opt/opendeskdash/ service:ODDash
 KillMode=mixed
 Restart=always
 RestartSec=1

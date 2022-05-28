@@ -5,11 +5,11 @@ SYSTEMD_LIB_DIR=/lib/systemd/system/
 
 .PHONY: install
 
-install: install_deps  install_app install_service
+install: install_deps  install_open_desk_dash install_service
 	@echo "Installed Desktop Service"
 
 install_deps:
-	@echo "Installing App dependencies"
+	@echo "Installing open_desk_dash dependencies"
 	python3 -m pip install -r requirements.txt
 
 install_service:
@@ -20,17 +20,17 @@ install_service:
 	systemctl enable $(SYSTEMD_DIR)/$(SERVICE_FILE)
 	systemctl start $(SERVICE_FILE)
 
-install_app:
-	@echo "Install Service App"
+install_open_desk_dash:
+	@echo "Install Service open_desk_dash"
 	mkdir -p $(INSTALL_PATH)
 	cp -R service/* $(INSTALL_PATH)
 	@systemctl restart $(SERVICE_FILE) || true
 
-uninstall: uninstall_deps uninstall_app uninstall_service
+uninstall: uninstall_deps uninstall_open_desk_dash uninstall_service
 	@echo "Uninstalled Desktop Service"
 
 uninstall_deps:
-	@echo "Uninstall App dependencies"
+	@echo "Uninstall open_desk_dash dependencies"
 	@echo "FUck knows how"
 
 uninstall_service:
@@ -41,9 +41,9 @@ uninstall_service:
 	rm -f $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE)
 	systemctl daemon-reload
 
-uninstall_app:
-	@echo "Uninstall Service App"
+uninstall_open_desk_dash:
+	@echo "Uninstall Service open_desk_dash"
 	rm -rf $(INSTALL_PATH)
 
 run:
-	gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./app/ service:app --log-level debug
+	gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./open_desk_dash/ service:ODDash --log-level debug

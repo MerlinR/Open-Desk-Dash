@@ -5,6 +5,7 @@ CREATE TABLE config (
     id INTEGER PRIMARY KEY,
     transition INTEGER NOT NULL,
     pages TEXT NOT NULL,
+    autoUpdate INTEGER NOT NULL,
     autoUpdatePlugins INTEGER NOT NULL,
     version TEXT NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -19,11 +20,11 @@ CREATE TABLE plugins (
     github TEXT NOT NULL,
     autoUpdate INTEGER NOT NULL,
     path TEXT NOT NULL,
-    tag TEXT NOT NULL,
-    version TEXT NOT NULL,
+    tag TEXT,
+    version TEXT,
     added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO config (transition, pages, autoUpdatePlugins, version)
-VALUES(30, "/default_dashboard/,/default_weather/", 1, "0.0.1");
+INSERT INTO config (transition, pages, autoUpdate, autoUpdatePlugins, version)
+VALUES(30, "/default_dashboard/,/default_weather/", 1, 1, "0.0.1");

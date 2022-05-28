@@ -7,7 +7,7 @@ from typing import Callable, Dict, Union
 
 import git
 import toml
-from app.lib.db_control import get_config_db
+from open_desk_dash.lib.db_control import get_config_db
 from flask import Blueprint, Flask
 
 
@@ -169,8 +169,8 @@ class pluginManager:
                     registry["author"],
                     registry["github"],
                     self.app.config["config"]["autoUpdatePlugins"],
-                    registry["tag"],
-                    registry["version"],
+                    registry.get("tag", ""),
+                    registry.get("version", ""),
                 ),
             )
             connection.commit()

@@ -2,13 +2,18 @@ import importlib
 import os
 import shutil
 import sqlite3
+import tarfile
 from pathlib import Path
 from typing import Callable, Dict, Union
 
 import git
+import requests
 import toml
-from open_desk_dash.lib.db_control import get_config_db
 from flask import Blueprint, Flask
+from open_desk_dash.lib.db_control import get_config_db
+from sympy import EX
+
+GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
 
 
 class pluginManager:
@@ -53,6 +58,7 @@ class pluginManager:
 
             self.plugins[name] = {
                 **registry,
+                **self.plugins[name],
                 "setup": plugin_setup,
                 "blueprint": plugin_blueprint,
             }
@@ -158,7 +164,7 @@ class pluginManager:
         try:
             connection = get_config_db()
             cur = connection.cursor()
-            sql = f"INSERT INTO plugins (name, path, title, description, author, github, autoUpdate, tag, version) VALUES (?,?,?,?,?,?,?,?,?);"
+            sql = f"INSERT INTO plugins (name, path, title, description, author, github, autoUpdate, tag, version, repoCommit, tagName) VALUES (?,?,?,?,?,?,?,?,?,?,?);"
             cur.execute(
                 sql,
                 (
@@ -171,6 +177,8 @@ class pluginManager:
                     self.app.config["config"]["autoUpdatePlugins"],
                     registry.get("tag", ""),
                     registry.get("version", ""),
+                    registry.get("repoCommit", ""),
+                    registry.get("tagName", ""),
                 ),
             )
             connection.commit()
@@ -188,16 +196,32 @@ class pluginManager:
 
     def plugin_install(self, link: str):
         tmp_repo_path = os.path.join(self.plugins_dir, "new_plugin")
-        try:
-            git.Repo.clone_from(link, tmp_repo_path)
-        except Exception as e:
-            print(e)
-            print(f"Failed to clone repo: {link}")
-            return
-
         accountName = link.split("/")[-2]
-        registry_path = self.find_registry(tmp_repo_path)
-        pluginName = os.path.basename(os.path.dirname(registry_path))
+        repoName = link.split("/")[-1]
+
+        release = self.plugin_api_check(accountName, repoName)
+
+        if release:
+            print(f"Version {release['tag_name']} - {release['name']}")
+            try:
+                response = requests.get(release["tarball_url"], stream=True)
+                with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
+                    tar.extractall(path=tmp_repo_path)
+
+            except Exception as e:
+                print("Failed to download release")
+                print(e)
+                return
+        else:
+            try:
+                git.Repo.clone_from(link, tmp_repo_path)
+            except Exception as e:
+                print(e)
+                print(f"Failed to clone repo: {link}")
+                return
+
+        registry_path = os.path.dirname(self.find_registry(tmp_repo_path))
+        pluginName = os.path.basename(registry_path)
 
         new_plugin_path = os.path.join(self.plugins_dir, f"{accountName}_{pluginName}")
         if os.path.exists(new_plugin_path):
@@ -206,6 +230,20 @@ class pluginManager:
         else:
             os.rename(tmp_repo_path, new_plugin_path)
 
+        registry = self.get_plugin_registry(
+            f"{accountName}_{pluginName}",
+            os.path.dirname(self.find_registry(new_plugin_path)),
+        )
+        if release:
+            registry["tag"] = release["tag_name"]
+            registry["tagName"] = release["name"]
+        else:
+            repo = git.Repo(new_plugin_path)
+            sha = repo.head.object.hexsha
+            registry["repoCommit"] = sha
+
+        self.save_plugin_register(registry)
+
     def plugin_delete(self, name: str):
         path = self.find_plugin_root_dir(name)
         if os.path.exists(path):
@@ -213,10 +251,18 @@ class pluginManager:
             shutil.rmtree(path)
             self.remove_missing_plugins()
 
-    # def plugin_version_check(self, name: str):
-    #     print("Version Check")
+    def plugin_api_check(self, author: str, repo: str):
+        print(GIT_RELEASE_PATH)
+        git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
+        response = requests.get(git_api_link)
+        if response.status_code != 200:
+            return None
+        return response.json()
 
-    # def plugin_update(self, name: str):
+    # def plugin_repo_update(self, name: str):
+    #     print("Updating")
+
+    # def plugin_release_update(self, name: str):
     #     print("Updating")
 
     def __delitem__(self, key):

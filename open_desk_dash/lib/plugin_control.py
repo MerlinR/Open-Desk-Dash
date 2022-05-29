@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Union
+from xmlrpc.client import Boolean
 
-import git
 import requests
 import toml
 from flask import Blueprint, Flask
@@ -29,6 +29,8 @@ class Plugin:
     repoCommit: str = ""
     tag: str = ""
     tagName: str = ""
+    latestTag: str = ""
+    latestTagName: str = ""
     autoUpdate: bool = True
     pages: List[str] = field(default_factory=list)
     configPath: str = None
@@ -226,10 +228,19 @@ class PluginManager:
 
         release = self.plugin_api_check(accountName, repoName)
 
-        if release:
-            self.plugin_install_release(release, tmp_repo_path)
-        else:
-            self.plugin_install_repo(link, tmp_repo_path)
+        if not release:
+            print(f"No release found in Repo")
+            return
+
+        print(f"Version {release['tag_name']} - {release['name']}")
+        try:
+            response = requests.get(release["tarball_url"], stream=True)
+            with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
+                tar.extractall(path=tmp_repo_path)
+        except Exception as e:
+            print("Failed to download release")
+            print(e)
+            return
 
         registry_path = os.path.dirname(self.find_registry(tmp_repo_path))
 
@@ -250,89 +261,54 @@ class PluginManager:
             f"{accountName}_{pluginName}",
             os.path.dirname(self.find_registry(new_plugin_path)),
         )
-        if release:
-            registry["tag"] = release["tag_name"]
-            registry["tagName"] = release["name"]
-        else:
-            repo = git.Repo(new_plugin_path)
-            registry["repoCommit"] = repo.head.object.hexsha
+
+        registry["tag"] = release["tag_name"]
+        registry["tagName"] = release["name"]
 
         self.plugins[registry["name"]] = Plugin.from_dict(registry)
         self.plugins[registry["name"]].save_to_db(self.app)
-
-    def plugin_install_release(self, release_info: dict, current_path: str):
-        print(f"Version {release_info['tag_name']} - {release_info['name']}")
-        try:
-            response = requests.get(release_info["tarball_url"], stream=True)
-            with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
-                tar.extractall(path=current_path)
-        except Exception as e:
-            print("Failed to download release")
-            print(e)
-            return
-
-    def plugin_install_repo(self, link: dict, current_path: str):
-        try:
-            git.Repo.clone_from(link, current_path)
-        except Exception as e:
-            print(e)
-            print(f"Failed to clone repo: {link}")
-            return
 
     def plugin_delete(self, name: str):
         path = self.find_plugin_root_dir(name)
         if os.path.exists(path):
             print("Plugin exists, Deleting")
             shutil.rmtree(path)
-            self.remove_missing_plugins()
 
     def plugin_api_check(self, author: str, repo: str):
-        print(GIT_RELEASE_PATH)
         git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
         response = requests.get(git_api_link)
         if response.status_code != 200:
             return None
         return response.json()
 
-    def update_plugins(self):
+    def update_plugin_check(self):
         for name, plugin in self.plugins.items():
-            if plugin.repoCommit:
-                self.plugin_repo_update(name)
-            elif plugin.tag:
-                self.plugin_release_update(name)
+            print(f"Checking {name} for updates")
+            accountName = plugin.github.split("/")[-2]
+            repoName = plugin.github.split("/")[-1]
 
-    def plugin_repo_version(self, name: str):
-        plugin = self.plugins[name]
-        repo = git.Repo(plugin["path"])
+            release = self.plugin_api_check(accountName, repoName)
+            if not release:
+                print(f"{name} has no releases")
+                continue
 
-    def plugin_repo_update(self, name: str):
-        plugin = self.plugins[name]
+            if release["tag_name"] != plugin.tag and plugin.autoUpdate:
+                print("Out of Date, Auto Updating")
+                self.update_plugin(plugin.name)
+            elif release["tag_name"] != plugin.tag and not plugin.autoUpdate:
+                print("Out of Date, Plugin set to not Auto update")
+                plugin.latestTag = release["tag_name"]
+                plugin.latestTagName = release["name"]
+            else:
+                print(f"{name} is up to date")
 
-        repo = git.Repo(plugin["path"], search_parent_directories=True)
-        remote = git.remote.Remote(repo, "origin")
-        behind = 0
-        newest = remote.fetch()[0].commit.hexsha
-        for change in remote.fetch():
-            if change.commit.hexsha != plugin["repoCommit"]:
-                behind += 1
-
-        print(f"Behind by {behind} - newest {newest}")
-        # import pdb
-
-        # pdb.set_trace()
-        # repo.remotes.origin.pull()
-
-    def plugin_release_update(self, name: str):
-        plugin = self.plugins[name]
+    def update_plugin(self, plugin_name: str):
+        plugin = self.plugins[plugin_name]
+        self.plugin_delete(plugin.name)
+        self.plugin_install(plugin.github)
 
     def __delitem__(self, key):
         del self.plugins[key]
-
-    def clear(self):
-        return self.plugins.clear()
-
-    def copy(self):
-        return self.plugins.copy()
 
     def has_key(self, k):
         return k in self.plugins

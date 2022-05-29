@@ -45,8 +45,13 @@ body %}
   {% else %}
   Pages: Restart ODDash
   {% endif %}
-
-  <div> <a href="/config/delete/{{plugin.name}}"><button class="button-danger button-small">Delete</button></a></div>
+  <p>
+  {% if plugin.latestTag %}
+  <!-- {{plugin.latestTagName}} -->
+  <a href="/config/update/{{plugin.name}}"><button class="button-info button-small">Update - {{plugin.latestTag}}</button></a>
+  {% endif %}
+</p>
+ <a href="/config/delete/{{plugin.name}}"><button class="button-danger button-small">Delete</button></a>
 </div>
 
 <hr />

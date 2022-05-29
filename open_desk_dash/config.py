@@ -69,3 +69,9 @@ def plugins():
 def delete_plugin(plugin):
     current_app.config["plugins"].plugin_delete(plugin)
     return redirect("/config/plugins")
+
+
+@cfg_api.route("/update/<plugin>", methods=["GET"])
+def update_plugin(plugin):
+    current_app.config["plugins"].update_plugin(plugin)
+    return redirect("/config/plugins")

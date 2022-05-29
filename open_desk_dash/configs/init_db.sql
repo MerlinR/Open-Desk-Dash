@@ -21,7 +21,6 @@ CREATE TABLE plugins (
     autoUpdate INTEGER NOT NULL,
     path TEXT NOT NULL,
     version TEXT NOT NULL,
-    repoCommit TEXT,
     tag TEXT,
     tagName TEXT,
     added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

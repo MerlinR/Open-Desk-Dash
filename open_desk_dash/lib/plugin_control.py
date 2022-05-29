@@ -202,25 +202,16 @@ class pluginManager:
         release = self.plugin_api_check(accountName, repoName)
 
         if release:
-            print(f"Version {release['tag_name']} - {release['name']}")
-            try:
-                response = requests.get(release["tarball_url"], stream=True)
-                with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
-                    tar.extractall(path=tmp_repo_path)
-
-            except Exception as e:
-                print("Failed to download release")
-                print(e)
-                return
+            self.plugin_install_release(release, tmp_repo_path)
         else:
-            try:
-                git.Repo.clone_from(link, tmp_repo_path)
-            except Exception as e:
-                print(e)
-                print(f"Failed to clone repo: {link}")
-                return
+            self.plugin_install_repo(link, tmp_repo_path)
 
         registry_path = os.path.dirname(self.find_registry(tmp_repo_path))
+
+        if not registry_path:
+            print("Failed to Install, cancelling")
+            return
+
         pluginName = os.path.basename(registry_path)
 
         new_plugin_path = os.path.join(self.plugins_dir, f"{accountName}_{pluginName}")
@@ -239,10 +230,28 @@ class pluginManager:
             registry["tagName"] = release["name"]
         else:
             repo = git.Repo(new_plugin_path)
-            sha = repo.head.object.hexsha
-            registry["repoCommit"] = sha
+            registry["repoCommit"] = repo.head.object.hexsha
 
         self.save_plugin_register(registry)
+
+    def plugin_install_release(self, release_info: dict, current_path: str):
+        print(f"Version {release_info['tag_name']} - {release_info['name']}")
+        try:
+            response = requests.get(release_info["tarball_url"], stream=True)
+            with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
+                tar.extractall(path=current_path)
+        except Exception as e:
+            print("Failed to download release")
+            print(e)
+            return
+
+    def plugin_install_repo(self, link: dict, current_path: str):
+        try:
+            git.Repo.clone_from(link, current_path)
+        except Exception as e:
+            print(e)
+            print(f"Failed to clone repo: {link}")
+            return
 
     def plugin_delete(self, name: str):
         path = self.find_plugin_root_dir(name)
@@ -259,11 +268,14 @@ class pluginManager:
             return None
         return response.json()
 
-    # def plugin_repo_update(self, name: str):
-    #     print("Updating")
+    def plugin_update(self, name: str):
+        print("Updating")
 
-    # def plugin_release_update(self, name: str):
-    #     print("Updating")
+    def plugin_repo_update(self, name: str):
+        print("Updating")
+
+    def plugin_release_update(self, name: str):
+        print("Updating")
 
     def __delitem__(self, key):
         del self.plugins[key]

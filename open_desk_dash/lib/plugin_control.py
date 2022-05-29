@@ -3,30 +3,82 @@ import os
 import shutil
 import sqlite3
 import tarfile
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, List, Union
 
 import git
 import requests
 import toml
 from flask import Blueprint, Flask
 from open_desk_dash.lib.db_control import get_config_db
-from sympy import EX
 
 GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
 
 
-class pluginManager:
+@dataclass
+class Plugin:
+    name: str
+    title: str
+    description: str
+    author: str
+    github: str
+    path: str
+    version: str
+    repoCommit: str = ""
+    tag: str = ""
+    tagName: str = ""
+    autoUpdate: bool = True
+    pages: List[str] = field(default_factory=list)
+    configPath: str = None
+    setupFn: Callable = None
+    id: int = -1
+    added: datetime = datetime.now
+    updated: datetime = datetime.now
+
+    @classmethod
+    def from_dict(cls, dict_v: dict):
+        return cls(**dict_v)
+
+    def save_to_db(self, app: Flask):
+        try:
+            connection = get_config_db()
+            cur = connection.cursor()
+            sql = f"INSERT INTO plugins (name, path, title, description, author, github, autoUpdate, tag, version, repoCommit, tagName) VALUES (?,?,?,?,?,?,?,?,?,?,?);"
+            cur.execute(
+                sql,
+                (
+                    self.name,
+                    self.path,
+                    self.title,
+                    self.description,
+                    self.author,
+                    self.github,
+                    app.config["config"]["autoUpdatePlugins"],
+                    self.tag,
+                    self.version,
+                    self.repoCommit,
+                    self.tagName,
+                ),
+            )
+            connection.commit()
+        except Exception as e:
+            print("Failed to save plugin registry")
+            print(e)
+            connection.rollback()
+        finally:
+            connection.close()
+
+
+class PluginManager:
     def __init__(self, app: Flask, plugins_dir=str):
         self.app = app
         self.plugins_dir = plugins_dir
-        self.plugins = {}
+        self.plugins: Dict[str, Plugin] = {}
         self.load_plugins_from_DB()
-        self.import_plugins()
-        self.load_plugins()
-        print(self.plugins)
 
-    def find_plugins(self) -> Dict[str, str]:
+    def find_local_plugins(self) -> Dict[str, str]:
         plugins = {}
         for direct in os.listdir(self.plugins_dir):
             full_path = os.path.join(self.plugins_dir, direct)
@@ -41,27 +93,43 @@ class pluginManager:
             if direct == name:
                 return os.path.join(self.plugins_dir, direct)
 
-    def import_plugins(self):
-        for name, path in self.find_plugins().items():
+    def register_plugins(self):
+        for name, path in self.find_local_plugins().items():
             registry = self.get_plugin_registry(name, path)
             if not registry:
                 print(f"Unknown {name} Plugin has no registry File. Skipping")
                 continue
             elif registry["name"] not in self.plugins.keys():
-                self.save_plugin_register(registry)
+                self.plugins[registry["name"]] = Plugin.from_dict(registry)
+                self.plugins[registry["name"]].save_to_db(self.app)
 
-            plugin_setup, plugin_blueprint = self.import_plugin_module(name, path)
+    def import_plugins(self):
+        for name, plugin in self.plugins.items():
+
+            plugin_setup, plugin_blueprint = self.import_plugin_module(
+                name, plugin.path
+            )
 
             if not plugin_blueprint:
-                print(f"Skipping {name} [{registry['name']}] Due to no blueprint found")
+                print(f"Skipping {name} Due to no blueprint found")
                 continue
 
-            self.plugins[name] = {
-                **registry,
-                **self.plugins[name],
-                "setup": plugin_setup,
-                "blueprint": plugin_blueprint,
-            }
+            self.app.register_blueprint(plugin_blueprint)
+
+            pages = [
+                str(p)
+                for p in self.app.url_map.iter_rules()
+                if plugin.name in str(p)
+                and "static" not in str(p)
+                and "config" not in str(p)
+            ]
+
+            for p in self.app.url_map.iter_rules():
+                if plugin.name in str(p) and "config" in str(p):
+                    self.plugins[name].config_page = str(p)
+
+            self.plugins[name].pages = pages
+            self.plugins[name].setupFn = plugin_setup
 
     def import_plugin_module(
         self, module_name: str, path: str
@@ -86,25 +154,6 @@ class pluginManager:
 
         return plugin_setup, plugin_api
 
-    def load_plugins(self):
-        for name, data in self.plugins.items():
-            self.app.register_blueprint(data["blueprint"])
-
-            pages = [
-                str(p)
-                for p in self.app.url_map.iter_rules()
-                if data["name"] in str(p)
-                and "static" not in str(p)
-                and "config" not in str(p)
-            ]
-
-            self.plugins[name]["config_page"] = None
-            for p in self.app.url_map.iter_rules():
-                if data["name"] in str(p) and "config" in str(p):
-                    self.plugins[name]["config_page"] = str(p)
-
-            self.plugins[name]["pages"] = pages
-
     def get_plugin_registry(self, name: str, path: str) -> dict:
         registry = os.path.join(path, "registry.toml")
         if os.path.exists(registry):
@@ -115,9 +164,13 @@ class pluginManager:
         return None
 
     def run_plugins_setup(self):
-        for plugin in self.plugins.values():
-            if plugin.get("setup"):
-                plugin["setup"](self.app)
+        for name, plugin in self.plugins.items():
+            if plugin.setupFn:
+                try:
+                    plugin.setupFn(self.app)
+                except Exception as e:
+                    print(f"[{name}] Failed to run setup due to:")
+                    print(e)
 
     def load_plugins_from_DB(self):
         try:
@@ -129,7 +182,9 @@ class pluginManager:
             existing = cur.fetchall()
 
             for plugin in existing:
-                self.plugins[plugin["name"]] = dict(zip(plugin.keys(), plugin))
+                self.plugins[plugin["name"]] = Plugin.from_dict(
+                    dict(zip(plugin.keys(), plugin))
+                )
 
         except Exception as e:
             print("Failed to load plugin DB")
@@ -158,36 +213,6 @@ class pluginManager:
             print("Failed to load plugin DB")
             print(e)
         finally:
-            connection.close()
-
-    def save_plugin_register(self, registry: dict):
-        try:
-            connection = get_config_db()
-            cur = connection.cursor()
-            sql = f"INSERT INTO plugins (name, path, title, description, author, github, autoUpdate, tag, version, repoCommit, tagName) VALUES (?,?,?,?,?,?,?,?,?,?,?);"
-            cur.execute(
-                sql,
-                (
-                    registry["name"],
-                    registry["path"],
-                    registry["title"],
-                    registry["description"],
-                    registry["author"],
-                    registry["github"],
-                    self.app.config["config"]["autoUpdatePlugins"],
-                    registry.get("tag", ""),
-                    registry.get("version", ""),
-                    registry.get("repoCommit", ""),
-                    registry.get("tagName", ""),
-                ),
-            )
-            connection.commit()
-        except Exception as e:
-            print("Failed to save plugin registry")
-            print(e)
-            connection.rollback()
-        finally:
-            self.plugins[registry["name"]] = registry
             connection.close()
 
     def find_registry(self, repo: str) -> str:
@@ -232,7 +257,8 @@ class pluginManager:
             repo = git.Repo(new_plugin_path)
             registry["repoCommit"] = repo.head.object.hexsha
 
-        self.save_plugin_register(registry)
+        self.plugins[registry["name"]] = Plugin.from_dict(registry)
+        self.plugins[registry["name"]].save_to_db(self.app)
 
     def plugin_install_release(self, release_info: dict, current_path: str):
         print(f"Version {release_info['tag_name']} - {release_info['name']}")
@@ -268,14 +294,36 @@ class pluginManager:
             return None
         return response.json()
 
-    def plugin_update(self, name: str):
-        print("Updating")
+    def update_plugins(self):
+        for name, plugin in self.plugins.items():
+            if plugin.repoCommit:
+                self.plugin_repo_update(name)
+            elif plugin.tag:
+                self.plugin_release_update(name)
+
+    def plugin_repo_version(self, name: str):
+        plugin = self.plugins[name]
+        repo = git.Repo(plugin["path"])
 
     def plugin_repo_update(self, name: str):
-        print("Updating")
+        plugin = self.plugins[name]
+
+        repo = git.Repo(plugin["path"], search_parent_directories=True)
+        remote = git.remote.Remote(repo, "origin")
+        behind = 0
+        newest = remote.fetch()[0].commit.hexsha
+        for change in remote.fetch():
+            if change.commit.hexsha != plugin["repoCommit"]:
+                behind += 1
+
+        print(f"Behind by {behind} - newest {newest}")
+        # import pdb
+
+        # pdb.set_trace()
+        # repo.remotes.origin.pull()
 
     def plugin_release_update(self, name: str):
-        print("Updating")
+        plugin = self.plugins[name]
 
     def __delitem__(self, key):
         del self.plugins[key]

@@ -48,8 +48,11 @@ def config():
 
 @cfg_api.route("/<plugin>")
 def plugin_config(plugin):
-    if current_app.config["plugins"].plugins.get(plugin, {}).get("config_page"):
-        return redirect(current_app.config["plugins"].plugins[plugin]["config_page"])
+    if (
+        current_app.config["plugins"].plugins.get(plugin)
+        and current_app.config["plugins"].plugins[plugin].config_page
+    ):
+        return redirect(current_app.config["plugins"].plugins[plugin].config_page)
     else:
         return redirect("/config/")
 

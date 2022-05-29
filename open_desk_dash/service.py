@@ -3,7 +3,7 @@ from werkzeug.urls import url_parse
 
 from open_desk_dash.config import cfg_api
 from open_desk_dash.lib.db_control import setup_DB_control
-from open_desk_dash.lib.plugin_control import pluginManager
+from open_desk_dash.lib.plugin_control import PluginManager
 
 ODDash = Flask(
     "OpenDeskDash",
@@ -18,7 +18,10 @@ ODDash.config["path_to_name"] = {}
 
 with ODDash.app_context():
     setup_DB_control()
-    ODDash.config["plugins"] = pluginManager(ODDash, PLUGIN_DIR)
+    ODDash.config["plugins"] = PluginManager(ODDash, PLUGIN_DIR)
+    ODDash.config["plugins"].register_plugins()
+    # ODDash.config["plugins"].update_plugins()
+    ODDash.config["plugins"].import_plugins()
     ODDash.config["plugins"].run_plugins_setup()
 
 

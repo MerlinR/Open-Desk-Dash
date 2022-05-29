@@ -10,9 +10,9 @@
             Setting's
             <ul>
               {% for plugin in config.plugins.values() %} {% if
-              plugin['config_page'] %}
+              plugin.config_page %}
               <li>
-                <a href="/config/{{plugin['name']}}">{{plugin['title']}}</a>
+                <a href="/config/{{plugin.name}}">{{plugin.title}}</a>
               </li>
               {% endif %} {% endfor %}
             </ul>

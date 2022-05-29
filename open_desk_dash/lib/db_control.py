@@ -46,8 +46,8 @@ def create_db(schema: str = ""):
     calframe = inspect.getouterframes(inspect.currentframe(), 2)
     name = None
     for plugins in current_app.config["plugins"].values():
-        if plugins["path"] in calframe[1][1]:
-            name = plugins["name"]
+        if plugins.path in calframe[1][1]:
+            name = plugins.name
     if not name:
         print("No DB name to create")
         return
@@ -68,8 +68,8 @@ def connect_db() -> sqlite3.Connection:
     calframe = inspect.getouterframes(inspect.currentframe(), 2)
     name = None
     for plugins in current_app.config["plugins"].values():
-        if plugins["path"] in calframe[1][1]:
-            name = plugins["name"]
+        if plugins.path in calframe[1][1]:
+            name = plugins.name
     if not name:
         print("No DB name to connect too")
         return
@@ -99,8 +99,8 @@ def create_config(schema: dict, init_data: dict = None):
 
     name = None
     for plugins in current_app.config["plugins"].values():
-        if plugins["path"] in calframe[1][1]:
-            name = plugins["name"]
+        if plugins.path in calframe[1][1]:
+            name = plugins.name
     if not name:
         print("No DB name to create")
         return
@@ -150,8 +150,8 @@ def gather_config():
     calframe = inspect.getouterframes(inspect.currentframe(), 2)
     name = None
     for plugins in current_app.config["plugins"].values():
-        if plugins["path"] in calframe[1][1]:
-            name = plugins["name"]
+        if plugins.path in calframe[1][1]:
+            name = plugins.name
     if not name:
         print("No DB name to create")
         return
@@ -165,9 +165,9 @@ def save_config(config: dict):
     """
     calframe = inspect.getouterframes(inspect.currentframe(), 2)
     name = None
-    for plugins in current_app.config["plugins"].values():
-        if plugins["path"] in calframe[1][1]:
-            name = plugins["name"]
+    for plugin in current_app.config["plugins"].values():
+        if plugin.path in calframe[1][1]:
+            name = plugin.name
     if not name:
         print("No DB name to create")
         return

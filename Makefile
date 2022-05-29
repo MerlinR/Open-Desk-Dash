@@ -46,4 +46,4 @@ uninstall_open_desk_dash:
 	rm -rf $(INSTALL_PATH)
 
 run:
-	gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./open_desk_dash/ service:ODDash --log-level debug
+	gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./open_desk_dash/ service:ODDash --log-level info

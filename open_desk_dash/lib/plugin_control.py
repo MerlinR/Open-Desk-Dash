@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Union
-from xmlrpc.client import Boolean
 
 import requests
 import toml
@@ -26,12 +25,10 @@ class Plugin:
     github: str
     path: str
     version: str
-    repoCommit: str = ""
     tag: str = ""
     tagName: str = ""
     latestTag: str = ""
     latestTagName: str = ""
-    autoUpdate: bool = True
     pages: List[str] = field(default_factory=list)
     configPath: str = None
     setupFn: Callable = None
@@ -47,7 +44,7 @@ class Plugin:
         try:
             connection = get_config_db()
             cur = connection.cursor()
-            sql = f"INSERT INTO plugins (name, path, title, description, author, github, autoUpdate, tag, version, repoCommit, tagName) VALUES (?,?,?,?,?,?,?,?,?,?,?);"
+            sql = f"INSERT INTO plugins (name, path, title, description, author, github, tag, version, tagName) VALUES (?,?,?,?,?,?,?,?,?);"
             cur.execute(
                 sql,
                 (
@@ -57,10 +54,8 @@ class Plugin:
                     self.description,
                     self.author,
                     self.github,
-                    app.config["config"]["autoUpdatePlugins"],
                     self.tag,
                     self.version,
-                    self.repoCommit,
                     self.tagName,
                 ),
             )
@@ -283,6 +278,8 @@ class PluginManager:
 
     def update_plugin_check(self):
         for name, plugin in self.plugins.items():
+            if name in ["default_dashboard", "default_weather"]:
+                continue
             print(f"Checking {name} for updates")
             accountName = plugin.github.split("/")[-2]
             repoName = plugin.github.split("/")[-1]
@@ -292,10 +289,16 @@ class PluginManager:
                 print(f"{name} has no releases")
                 continue
 
-            if release["tag_name"] != plugin.tag and plugin.autoUpdate:
+            if (
+                release["tag_name"] != plugin.tag
+                and self.app.config["config"]["autoUpdate"]
+            ):
                 print("Out of Date, Auto Updating")
                 self.update_plugin(plugin.name)
-            elif release["tag_name"] != plugin.tag and not plugin.autoUpdate:
+            elif (
+                release["tag_name"] != plugin.tag
+                and not self.app.config["config"]["autoUpdate"]
+            ):
                 print("Out of Date, Plugin set to not Auto update")
                 plugin.latestTag = release["tag_name"]
                 plugin.latestTagName = release["name"]

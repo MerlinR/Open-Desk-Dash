@@ -18,7 +18,6 @@ CREATE TABLE plugins (
     description TEXT NOT NULL,
     author TEXT NOT NULL,
     github TEXT NOT NULL,
-    autoUpdate INTEGER NOT NULL,
     path TEXT NOT NULL,
     version TEXT NOT NULL,
     tag TEXT,

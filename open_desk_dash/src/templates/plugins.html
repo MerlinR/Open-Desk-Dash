@@ -51,7 +51,9 @@ body %}
   <a href="/config/update/{{plugin.name}}"><button class="button-info button-small">Update - {{plugin.latestTag}}</button></a>
   {% endif %}
 </p>
+{% if plugin.name not in ["default_weather", "default_dashboard"] %}
  <a href="/config/delete/{{plugin.name}}"><button class="button-danger button-small">Delete</button></a>
+ {% endif %}
 </div>
 
 <hr />

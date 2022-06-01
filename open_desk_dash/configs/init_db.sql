@@ -7,8 +7,12 @@ CREATE TABLE config (
     pages TEXT NOT NULL,
     autoUpdate INTEGER NOT NULL,
     autoUpdatePlugins INTEGER NOT NULL,
+    theme TEXT NOT NULL,
+    github TEXT NOT NULL,
     version TEXT NOT NULL,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    versionName TEXT NOT NULL,
+    installed TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE plugins (
@@ -26,5 +30,5 @@ CREATE TABLE plugins (
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO config (transition, pages, autoUpdate, autoUpdatePlugins, version)
-VALUES(30, "/default_dashboard/,/default_weather/", 1, 1, "0.0.1");
+INSERT INTO config (transition, pages, autoUpdate, autoUpdatePlugins, theme, github, version, versionName)
+VALUES(30, "/default_dashboard/,/default_weather/", 1, 1, "default", "https://github.com/MerlinR/Open-Desk-Dash", "0.1", "Alpha");

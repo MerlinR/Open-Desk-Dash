@@ -44,7 +44,7 @@ class Plugin:
         try:
             connection = get_config_db()
             cur = connection.cursor()
-            sql = f"INSERT INTO plugins (name, path, title, description, author, github, tag, version, tagName) VALUES (?,?,?,?,?,?,?,?,?);"
+            sql = f"INSERT INTO plugins (name, path, title, description, author, github, tag, version, tagName, updated) VALUES (?,?,?,?,?,?,?,?,?,?);"
             cur.execute(
                 sql,
                 (
@@ -57,6 +57,7 @@ class Plugin:
                     self.tag,
                     self.version,
                     self.tagName,
+                    datetime.now(),
                 ),
             )
             connection.commit()
@@ -86,7 +87,6 @@ class PluginManager:
 
     def find_plugin_root_dir(self, name: str) -> str:
         for direct in os.listdir(self.plugins_dir):
-            print(direct)
             if direct == name:
                 return os.path.join(self.plugins_dir, direct)
 
@@ -265,7 +265,7 @@ class PluginManager:
 
     def plugin_delete(self, name: str):
         path = self.find_plugin_root_dir(name)
-        if os.path.exists(path):
+        if path and os.path.exists(path):
             print("Plugin exists, Deleting")
             shutil.rmtree(path)
 

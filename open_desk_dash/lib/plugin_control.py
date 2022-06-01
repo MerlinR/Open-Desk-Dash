@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Union
 
+import pip
 import requests
 import toml
 from flask import Blueprint, Flask
@@ -212,8 +213,12 @@ class PluginManager:
         finally:
             connection.close()
 
-    def find_registry(self, repo: str) -> str:
+    def find_plugin_registry(self, repo: str) -> str:
         for file in Path(repo).rglob("registry.toml"):
+            return file.as_posix()
+
+    def find_plugin_requirements(self, repo: str) -> str:
+        for file in Path(repo).rglob("requirements.txt"):
             return file.as_posix()
 
     def plugin_install(self, link: str):
@@ -237,7 +242,7 @@ class PluginManager:
             print(e)
             return
 
-        registry_path = os.path.dirname(self.find_registry(tmp_repo_path))
+        registry_path = os.path.dirname(self.find_plugin_registry(tmp_repo_path))
 
         if not registry_path:
             print("Failed to Install, cancelling")
@@ -254,7 +259,7 @@ class PluginManager:
 
         registry = self.get_plugin_registry(
             f"{accountName}_{pluginName}",
-            os.path.dirname(self.find_registry(new_plugin_path)),
+            os.path.dirname(self.find_plugin_registry(new_plugin_path)),
         )
 
         registry["tag"] = release["tag_name"]
@@ -262,6 +267,23 @@ class PluginManager:
 
         self.plugins[registry["name"]] = Plugin.from_dict(registry)
         self.plugins[registry["name"]].save_to_db(self.app)
+
+        requirements_file = self.find_plugin_requirements(new_plugin_path)
+        if requirements_file:
+            self.plugin_requirements_install(requirements_file)
+
+    def plugin_requirements_install(self, req_path: str):
+        with open(req_path, "r") as req_file:
+            for line in req_file:
+                package = line.strip()
+                print(f"Installing {package}")
+                try:
+                    if hasattr(pip, "main"):
+                        pip.main(["install", package])
+                    else:
+                        pip._internal.main(["install", package])
+                except Exception as e:
+                    print(f"Failed to install requirment due to {e}")
 
     def plugin_delete(self, name: str):
         path = self.find_plugin_root_dir(name)

@@ -313,13 +313,13 @@ class PluginManager:
 
             if (
                 release["tag_name"] != plugin.tag
-                and self.app.config["config"]["autoUpdate"]
+                and self.app.config["config"]["autoUpdatePlugins"]
             ):
                 print("Out of Date, Auto Updating")
                 self.update_plugin(plugin.name)
             elif (
                 release["tag_name"] != plugin.tag
-                and not self.app.config["config"]["autoUpdate"]
+                and not self.app.config["config"]["autoUpdatePlugins"]
             ):
                 print("Out of Date, Plugin set to not Auto update")
                 plugin.latestTag = release["tag_name"]

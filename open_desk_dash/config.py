@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, redirect, render_template, request
 
 from open_desk_dash.lib.db_control import gather_config_db, get_config_db
+from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
 
 cfg_api = Blueprint(
     "config",
@@ -11,6 +12,8 @@ cfg_api = Blueprint(
 
 @cfg_api.route("/", methods=["GET", "POST"])
 def config():
+    rtn_msg = {"msg": "", "type": ""}
+
     if request.method == "POST":
         try:
             transition_speed = request.form["transition"]
@@ -35,15 +38,16 @@ def config():
                 (transition_speed, page_order, autoUpdate, autoUpdatePlugins),
             )
             connection.commit()
+            rtn_msg = {"msg": "Saved", "type": "positive"}
         except Exception as e:
-            print("Failed to save config")
-            print(e)
+            print(f"Failed to save config. {e}")
+            rtn_msg = {"msg": f"Failed to save config, {e}", "type": "error"}
             connection.rollback()
         finally:
             gather_config_db()
             connection.close()
 
-    return render_template("config.html")
+    return render_template("config.html", msg=rtn_msg["msg"], msg_type=rtn_msg["type"])
 
 
 @cfg_api.route("/<plugin>")
@@ -54,24 +58,56 @@ def plugin_config(plugin):
     ):
         return redirect(current_app.config["plugins"].plugins[plugin].config_page)
     else:
-        return redirect("/config/")
+        return render_template(
+            "plugins.html", msg=f"{plugin} has no config options", msg_type="info"
+        )
 
 
 @cfg_api.route("/plugins", methods=["GET", "POST"])
 def plugins():
     if request.method == "POST":
-        link = request.form["github_link"]
-        current_app.config["plugins"].plugin_install(link)
+        link = request.form.get("github_link")
+        if link:
+            try:
+                current_app.config["plugins"].plugin_install(link)
+            except InstallFailed as e:
+                return render_template("plugins.html", msg=e, msg_type=e.msg_type)
+            except Exception as e:
+                print(f"Plugin Install failed {e}")
+                return render_template("plugins.html", msg=e, msg_type="error")
+        else:
+            return render_template(
+                "plugins.html", msg="Github link Required", msg_type="info"
+            )
     return render_template("plugins.html")
 
 
 @cfg_api.route("/delete/<plugin>", methods=["GET"])
 def delete_plugin(plugin):
-    current_app.config["plugins"].plugin_delete(plugin)
-    return redirect("/config/plugins")
+    try:
+        current_app.config["plugins"].plugin_delete(plugin)
+    except DeletionFailed as e:
+        return render_template("plugins.html", msg=e, msg_type=e.msg_type)
+    except Exception as e:
+        print(f"Plugin deletion failed\n{e}")
+        return render_template("plugins.html", msg=e, msg_type="error")
+
+    return render_template(
+        "plugins.html", msg="Plugin deleted, restart required.", msg_type="info"
+    )
 
 
 @cfg_api.route("/update/<plugin>", methods=["GET"])
 def update_plugin(plugin):
-    current_app.config["plugins"].update_plugin(plugin)
-    return redirect("/config/plugins")
+    try:
+        current_app.config["plugins"].update_plugin(plugin)
+    except DeletionFailed as e:
+        return render_template("plugins.html", msg=e, msg_type=e.msg_type)
+    except InstallFailed as e:
+        return render_template("plugins.html", msg=e, msg_type=e.msg_type)
+    except Exception as e:
+        print(f"Plugin update failed {e}")
+        return render_template("plugins.html", msg=e, msg_type="error")
+    return render_template(
+        "plugins.html", msg="Plugin Updated, restart required.", msg_type="info"
+    )

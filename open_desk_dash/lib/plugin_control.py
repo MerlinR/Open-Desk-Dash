@@ -13,6 +13,7 @@ import requests
 import toml
 from flask import Blueprint, Flask
 from open_desk_dash.lib.db_control import get_config_db
+from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
 
 GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
 
@@ -41,7 +42,7 @@ class Plugin:
     def from_dict(cls, dict_v: dict):
         return cls(**dict_v)
 
-    def save_to_db(self, app: Flask):
+    def save_to_db(self):
         try:
             connection = get_config_db()
             cur = connection.cursor()
@@ -63,9 +64,9 @@ class Plugin:
             )
             connection.commit()
         except Exception as e:
-            print("Failed to save plugin registry")
-            print(e)
+            print(f"Failed to save plugin registry\n{e}")
             connection.rollback()
+            raise e
         finally:
             connection.close()
 
@@ -99,7 +100,10 @@ class PluginManager:
                 continue
             elif registry["name"] not in self.plugins.keys():
                 self.plugins[registry["name"]] = Plugin.from_dict(registry)
-                self.plugins[registry["name"]].save_to_db(self.app)
+                try:
+                    self.plugins[registry["name"]].save_to_db()
+                except Exception as e:
+                    print(f"Failed to register plugin due to..\n{e}")
 
     def import_plugins(self):
         for name, plugin in self.plugins.items():
@@ -230,32 +234,48 @@ class PluginManager:
 
         if not release:
             print(f"No release found in Repo")
-            return
+            raise InstallFailed(
+                "Cannot find release info, ensure public github link with a release.",
+                msg_type="info",
+            )
+        elif release.get("message"):
+            print(f"Github API limit")
+            raise InstallFailed(
+                release.get("message"),
+                msg_type="info",
+            )
 
-        print(f"Version {release['tag_name']} - {release['name']}")
+        print(
+            f"Installing {repoName} Version {release['tag_name']} - {release['name']}"
+        )
         try:
             response = requests.get(release["tarball_url"], stream=True)
             with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
                 tar.extractall(path=tmp_repo_path)
         except Exception as e:
-            print("Failed to download release")
-            print(e)
-            return
+            print(f"Failed to download release\n{e}")
+            raise InstallFailed(str(e))
 
         registry_path = os.path.dirname(self.find_plugin_registry(tmp_repo_path))
 
         if not registry_path:
             print("Failed to Install, cancelling")
-            return
+            shutil.rmtree(tmp_repo_path)
+            raise InstallFailed("Plugin is missing registry toml file, cannot install.")
 
         pluginName = os.path.basename(registry_path)
 
         new_plugin_path = os.path.join(self.plugins_dir, f"{accountName}_{pluginName}")
+
         if os.path.exists(new_plugin_path):
             print("Plugin Already exists, skipping")
             shutil.rmtree(tmp_repo_path)
-        else:
-            os.rename(tmp_repo_path, new_plugin_path)
+            raise InstallFailed(
+                "Plugin already installed, restart to view or manually delete and retry.",
+                msg_type="info",
+            )
+
+        os.rename(tmp_repo_path, new_plugin_path)
 
         registry = self.get_plugin_registry(
             f"{accountName}_{pluginName}",
@@ -266,35 +286,49 @@ class PluginManager:
         registry["tagName"] = release["name"]
 
         self.plugins[registry["name"]] = Plugin.from_dict(registry)
-        self.plugins[registry["name"]].save_to_db(self.app)
+        try:
+            self.plugins[registry["name"]].save_to_db()
+        except Exception as e:
+            raise InstallFailed(str(e))
 
         requirements_file = self.find_plugin_requirements(new_plugin_path)
         if requirements_file:
-            self.plugin_requirements_install(requirements_file)
+            try:
+                self.plugin_requirements_install(requirements_file)
+            except Exception as e:
+                print(f"Failed to install plugin requirements\n{e}")
+                raise InstallFailed(f"Failed to install plugin requirements\n{e}")
 
     def plugin_requirements_install(self, req_path: str):
         with open(req_path, "r") as req_file:
             for line in req_file:
                 package = line.strip()
                 print(f"Installing {package}")
-                try:
-                    if hasattr(pip, "main"):
-                        pip.main(["install", package])
-                    else:
-                        pip._internal.main(["install", package])
-                except Exception as e:
-                    print(f"Failed to install requirment due to {e}")
+                if hasattr(pip, "main"):
+                    pip.main(["install", package])
+                else:
+                    pip._internal.main(["install", package])
 
     def plugin_delete(self, name: str):
         path = self.find_plugin_root_dir(name)
         if path and os.path.exists(path):
             print("Plugin exists, Deleting")
-            shutil.rmtree(path)
+            try:
+                shutil.rmtree(path)
+            except Exception as e:
+                raise e
+        else:
+            print("Plugin doesn't exist")
+            raise DeletionFailed(
+                msg="Plugin doesn't exist, failed to delete", msg_type="error"
+            )
 
     def plugin_api_check(self, author: str, repo: str):
         git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
         response = requests.get(git_api_link)
-        if response.status_code != 200:
+        if response.status_code == 403:
+            return response.json()
+        elif response.status_code != 200:
             return None
         return response.json()
 
@@ -309,6 +343,9 @@ class PluginManager:
             release = self.plugin_api_check(accountName, repoName)
             if not release:
                 print(f"{name} has no releases")
+                continue
+            elif release.get("message"):
+                print(f"Reached github API limit")
                 continue
 
             if (

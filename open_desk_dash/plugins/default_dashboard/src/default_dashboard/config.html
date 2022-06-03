@@ -6,17 +6,15 @@
   <hr>
   <form action="/default_dashboard/config" method= "POST">
     <br>
-    <div style="float:left;width: 100%;">
-        <label for="page_order">Title</label>
+    <div style="display: table-row">
+        <label for="page_order">Title: </label>
         <input size="30" type="text" name="dash_title" value="{{config.default_dashboard.title}}"/></input>
-      </div>
-      <br>
-    <div style="float:left;width: 100%;">
-      <label for="page_order">Image Link</label>
-      <input size="60" type="text" name="dash_image" value="{{config.default_dashboard.imageLink}}"/></input>
+    </div>
+    <div style="display: table-row">
+      <label for="page_order">Image Link: </label>
+      <input size="40" type="text" name="dash_image" value="{{config.default_dashboard.imageLink}}"/></input>
     </div>
     <br>
-    
     <button class="button-positive" type="submit">Save</button><br>
   </form>
   {% endblock %}

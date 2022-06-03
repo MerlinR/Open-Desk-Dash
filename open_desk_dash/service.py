@@ -19,6 +19,7 @@ ODDash.config["path_to_name"] = {}
 
 with ODDash.app_context():
     setup_DB_control()
+    update_check()
     ODDash.config["plugins"] = PluginManager(ODDash, PLUGIN_DIR)
     ODDash.config["plugins"].register_plugins()
     ODDash.config["plugins"].update_plugin_check()

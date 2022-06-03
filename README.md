@@ -15,8 +15,10 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
     - Manual or Automatic install via web interface and github
     - Individual Plugin Database's for customisation
     - framework for plugin Configuration WebUI page
+
+### To Do
 - Theme's
-    - Entire Dash theme overwritable
+    - Entire Dash theme overridable
 
 
 ### Plugins
@@ -39,11 +41,8 @@ api = Blueprint("example", __name__, url_prefix="/example")
 
 ### Alpha
 
-- Auto install requirements from plugins
-- Theme change
 - Self auto-update
 - Easy install Script
-- Better UI with feedback
 
 ### Backlist
 

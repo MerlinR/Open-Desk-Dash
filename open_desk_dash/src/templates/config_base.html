@@ -5,14 +5,23 @@
     <title>{% block title %}{% endblock %} Configuration</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src={{ url_for('static', filename='js/extra.js') }}></script>
     <link
       rel="stylesheet"
       href="{{ url_for('static',
     filename='css/')}}{{config.config.theme}}.css"
     />
   </head>
+
   {% include 'sidebar.html' %}
+  
   <body class="containconfig">
     {% block body %}{% endblock %}
   </body>
+
+  <div id="snackbar_{{msg_type}}">{{msg}}</div>
+  <script type="text/javascript">
+    snackbar()
+  </script>
+
 </html>

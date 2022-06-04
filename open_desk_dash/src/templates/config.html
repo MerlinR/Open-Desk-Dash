@@ -1,49 +1,107 @@
-{% extends "config_base.html" %} {% block title %}Base {% endblock %}
-{%block body %}
+{% extends "config_base.html" %} {% block title %}Base {% endblock %} {%block
+body %}
 
 <div class="title">
   <h1>Base Setting</h1>
 </div>
-<hr>
+<hr />
 
-<form action="/config" method= "POST">
-  
+<form action="/config" method="POST">
   <div style="display: table-row">
     <label for="page_order" class="switch">Auto Update: </label>
-      {% if config.config.autoUpdate %}
-        <input type="checkbox"  name="autoUpdate" checked/>
-      {% else %}
-        <input type="checkbox" name="autoUpdate"/>
-      {% endif %}
-
+    {% if config.config.autoUpdate %}
+    <input type="checkbox" name="autoUpdate" checked />
+    {% else %}
+    <input type="checkbox" name="autoUpdate" />
+    {% endif %}
   </div>
 
   <div style="display: table-row">
     <label for="page_order">Auto Update Plugins: </label>
     {% if config.config.autoUpdatePlugins %}
-      <input type="checkbox" name="autoUpdatePlugins" checked/>
+    <input type="checkbox" name="autoUpdatePlugins" checked />
     {% else %}
-      <input type="checkbox" name="autoUpdatePlugins"/>
+    <input type="checkbox" name="autoUpdatePlugins" />
     {% endif %}
   </div>
 
-  <hr>
-
   <div style="display: table-row">
     <label for="transition">Transition Speed: </label>
-    <input type="number" name="transition" min="0" size="4" value="{{config.config.transition}}">
+    <input
+      type="number"
+      name="transition"
+      min="0"
+      size="4"
+      value="{{config.config.transition}}"
+    />
     <small>Seconds. 0 to Disable.</small>
   </div>
 
-  <div style="display: table-row">
-    <label for="page_order">Page Order: </label>
-    <input type="text" name="page_order" value="{{','.join(config.config.pages)}}"/></input>
+  <hr />
+
+  <div class="pages_container" style="display: table-row">
+    <label for="pages">Page Order: </label>
+    <br />
+
+    <button onclick="addElement()" type="button" class="button-diddy">
+      <i class="bx bxs-plus-circle"></i>
+    </button>
+
+    <select name="pages">
+      {% for plugin in config["plugins"].plugins.values() %} {% for page in
+      plugin['pages'] %} {% if page == pages[0]%}
+      <option value="{{page}}" selected>{{page}}</option>
+      {% else %}
+      <option value="{{page}}">{{page}}</option>
+      {% endif %} {% endfor %} {% endfor %}
+    </select>
+    <input type="text" name="pages_vars" value="{{page_vars[0]}}" />
+    <small>GET arguments, name=myName.</small>
+
+    {% for sel_page in pages[1:] %}
+    <div style="float: left">
+      <button type="button" onclick="deleteElement()" class="button-diddy">
+        <i class="bx bx-x"></i>
+      </button>
+      <select name="pages">
+        {% for plugin in config["plugins"].plugins.values() %} {% for page in
+        plugin['pages'] %} {% if page == sel_page%}
+        <option value="{{page}}" selected>{{page}}</option>
+        {% else %}
+        <option value="{{page}}">{{page}}</option>
+        {% endif %} {% endfor %} {% endfor %}
+      </select>
+      <input type="text" name="pages_vars" value="{{page_vars[loop.index]}}" />
+    </div>
+    {% endfor %}
   </div>
 
-  <hr>
-  
-  <button class="button-positive" onclick="snackbar()" type="submit">Save</button>
+  <hr />
+
+  <button class="button-positive" type="submit">Save</button>
 </form>
 
-{% endblock %}
+<script>
+  function addElement() {
+    var wrapper = document.getElementsByClassName("pages_container")[0];
+    new_form = `<div style="float:left">
+                <button type="button" onclick="deleteElement()" class="button-diddy"><i class="bx bx-x"></i></button>
+                  <select name="pages">
+                      {% for plugin, data in config["plugins"].plugins.items() %}
+                        {% for page in data['pages'] %}
+                          <option value="{{page}}" SELECTED>{{page}}</option>"
+                        {% endfor %}
+                      {% endfor %}
+                  </select>
+                  <input type="text" name="pages_vars">
+                </div>`;
+    wrapper.innerHTML += new_form;
+  }
 
+  function deleteElement() {
+    var wrapper = document.getElementsByClassName("pages_container")[0];
+    wrapper.removeChild(wrapper.lastChild);
+  }
+</script>
+
+{% endblock %}

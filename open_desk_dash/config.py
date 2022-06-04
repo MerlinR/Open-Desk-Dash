@@ -17,7 +17,7 @@ def config():
     if request.method == "POST":
         try:
             transition_speed = request.form["transition"]
-            page_order = request.form["page_order"]
+
             autoUpdate = None
             if request.form.get("autoUpdate"):
                 autoUpdate = True
@@ -30,12 +30,20 @@ def config():
             else:
                 autoUpdatePlugins = False
 
+            selected_pages = request.form.getlist("pages")
+            selected_pages_vars = request.form.getlist("pages_vars")
+            page_order = []
+            for i, page in enumerate(selected_pages):
+                if selected_pages_vars[i]:
+                    page_order.append(f"{page}?{selected_pages_vars[i]}")
+                else:
+                    page_order.append(page)
             connection = get_config_db()
 
             cur = connection.cursor()
             cur.execute(
                 "UPDATE config SET transition = ?, pages = ?, autoUpdate = ?, autoUpdatePlugins = ? WHERE id = 1 ",
-                (transition_speed, page_order, autoUpdate, autoUpdatePlugins),
+                (transition_speed, ",".join(page_order), autoUpdate, autoUpdatePlugins),
             )
             connection.commit()
             rtn_msg = {"msg": "Saved", "type": "positive"}
@@ -47,7 +55,21 @@ def config():
             gather_config_db()
             connection.close()
 
-    return render_template("config.html", msg=rtn_msg["msg"], msg_type=rtn_msg["type"])
+    pages = [page.split("?")[0] for page in current_app.config["config"]["pages"]]
+    page_vars = []
+    for page in current_app.config["config"]["pages"]:
+        if "?" in page:
+            page_vars.append(page.split("?")[-1])
+        else:
+            page_vars.append("")
+
+    return render_template(
+        "config.html",
+        pages=pages,
+        page_vars=page_vars,
+        msg=rtn_msg["msg"],
+        msg_type=rtn_msg["type"],
+    )
 
 
 @cfg_api.route("/<plugin>")

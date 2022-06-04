@@ -187,7 +187,8 @@ label {
   padding-right: 24px;
 }
 
-input {
+input,
+select {
   float: left;
 }
 
@@ -224,6 +225,18 @@ button {
   font-weight: bold;
   width: 139px;
   height: 30px;
+}
+
+.button-diddy {
+  width: 50px;
+  height: 33px;
+  padding: 0px;
+  margin: 0px;
+  margin-left: 0px;
+  border-radius: 4px;
+  font-size: smaller;
+  background: transparent;
+  border: none;
 }
 
 .button-small {

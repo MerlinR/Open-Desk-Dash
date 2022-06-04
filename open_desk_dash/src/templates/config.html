@@ -59,8 +59,12 @@ body %}
     <small>GET arguments, name=myName.</small>
 
     {% for sel_page in pages[1:] %}
-    <div style="float: left">
-      <button type="button" onclick="deleteElement()" class="button-diddy">
+    <div style="float: left" id="{{loop.index-1}}">
+      <button
+        type="button"
+        onclick="deleteElement({{loop.index-1}})"
+        class="button-diddy"
+      >
         <i class="bx bx-x"></i>
       </button>
       <select name="pages">
@@ -98,9 +102,9 @@ body %}
     wrapper.innerHTML += new_form;
   }
 
-  function deleteElement() {
+  function deleteElement(index) {
     var wrapper = document.getElementsByClassName("pages_container")[0];
-    wrapper.removeChild(wrapper.lastChild);
+    wrapper.removeChild(document.getElementById(index));
   }
 </script>
 

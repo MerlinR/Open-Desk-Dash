@@ -19,7 +19,8 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
 ### To Do
 - Theme's
     - Entire Dash theme overridable
-
+- Pages can have up and down rotate, for slight variants of same page
+- Allow external sites and use iframe in base template for rotation
 
 ### Plugins
 
@@ -43,7 +44,3 @@ api = Blueprint("example", __name__, url_prefix="/example")
 
 - Self auto-update
 - Easy install Script
-
-### Backlist
-
-- Pages can have up and down rotate, for slight variants of same page

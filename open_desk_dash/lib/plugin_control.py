@@ -46,7 +46,7 @@ class Plugin:
         try:
             connection = get_config_db()
             cur = connection.cursor()
-            sql = f"INSERT INTO plugins (name, path, title, description, author, github, tag, version, tagName, updated) VALUES (?,?,?,?,?,?,?,?,?,?);"
+            sql = f"REPLACE INTO plugins (name, path, title, description, author, github, tag, version, tagName, updated) VALUES (?,?,?,?,?,?,?,?,?,?);"
             cur.execute(
                 sql,
                 (
@@ -206,7 +206,8 @@ class PluginManager:
             for row in cur.fetchall():
                 if not os.path.exists(row["path"]):
                     print(f"Module {row['name']} Missing... Deleting SQL record")
-                    sql = f"DELETE FROM plugins WHERE id = {row['id']};"
+                    sql = f"DELETE FROM plugins WHERE name = '{row['name']}';"
+                    print(sql)
                     cur.execute(sql)
                     connection.commit()
                     self.plugins.pop(row["name"], None)

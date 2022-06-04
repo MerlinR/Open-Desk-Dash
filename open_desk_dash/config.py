@@ -18,17 +18,13 @@ def config():
         try:
             transition_speed = request.form["transition"]
 
-            autoUpdate = None
+            autoUpdate = False
             if request.form.get("autoUpdate"):
                 autoUpdate = True
-            else:
-                autoUpdate = False
 
-            autoUpdatePlugins = None
+            autoUpdatePlugins = False
             if request.form.get("autoUpdatePlugins"):
                 autoUpdatePlugins = True
-            else:
-                autoUpdatePlugins = False
 
             selected_pages = request.form.getlist("pages")
             selected_pages_vars = request.form.getlist("pages_vars")

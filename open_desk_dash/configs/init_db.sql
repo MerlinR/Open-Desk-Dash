@@ -16,8 +16,7 @@ CREATE TABLE config (
 );
 
 CREATE TABLE plugins (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     author TEXT NOT NULL,

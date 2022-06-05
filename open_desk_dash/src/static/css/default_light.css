@@ -1,0 +1,18 @@
+:root {
+  --main-bg-color: #f3f4f6;
+  --second-bg-color: #6366f1;
+  --trim-bg-color: #818cf8;
+  --main-title-color: #111827;
+  --main-text-color: #1f2937;
+
+  --light: #f2f2f2;
+  --primary: #6366f1;
+  --secondary: #1f2937;
+
+  --success: #4bbf73;
+  --info: #1f9bcf;
+  --warning: #f0ad4e;
+  --danger: #d9534f;
+
+  --transitionSpeed: 2s;
+}

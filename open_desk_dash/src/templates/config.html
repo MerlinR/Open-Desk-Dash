@@ -81,15 +81,16 @@ body %}
   </div>
 
   <hr />
-
   <button class="button-positive" type="submit">Save</button>
 </form>
 
 <script>
+  var indx = {{pages|length-1}}
+
   function addElement() {
     var wrapper = document.getElementsByClassName("pages_container")[0];
-    new_form = `<div style="float:left">
-                <button type="button" onclick="deleteElement()" class="button-diddy"><i class="bx bx-x"></i></button>
+    new_form = `<div style="float:left" id="${globalThis.indx}">
+                <button type="button" onclick="deleteElement(${globalThis.indx})" class="button-diddy"><i class="bx bx-x"></i></button>
                   <select name="pages">
                       {% for plugin, data in config["plugins"].plugins.items() %}
                         {% for page in data['pages'] %}
@@ -100,11 +101,13 @@ body %}
                   <input type="text" name="pages_vars">
                 </div>`;
     wrapper.innerHTML += new_form;
+    globalThis.indx += 1
   }
 
   function deleteElement(index) {
     var wrapper = document.getElementsByClassName("pages_container")[0];
     wrapper.removeChild(document.getElementById(index));
+    globalThis.indx -= 1
   }
 </script>
 

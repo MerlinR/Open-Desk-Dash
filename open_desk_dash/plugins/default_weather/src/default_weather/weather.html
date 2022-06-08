@@ -1,8 +1,222 @@
 {% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block body
 %} <link rel="stylesheet" href={{ url_for('default_weather.static',
 filename='css/styles.css') }}>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/1.2/css/weather-icons.min.css"
+/>
 
-<div class="title">
-  <h1>Weather</h1>
+<!-- https://codepen.io/Call_in/embed/pMYGbZ?height=620&theme-id=light&default-tab=result&user=Call_in&slug-hash=pMYGbZ&pen-title=Simple%20Weather%20App%20Design&name=cp_embed_14#result-box -->
+
+<div class="weather_body">
+  <div id="left-weather-box" class="weather">
+    <h4 id="cur_day">Weather</h4>
+    <h5 id="cur_date" style="font-weight: normal">Date</h5>
+    <div class="icon_box">
+      <i id="weather_icon" class="wi wi-sunrise"></i>
+    </div>
+    <div class="today_data">
+      <h1 id="cur_tmp" style="font-size: 5rem">Temp</h1>
+      <h3 id="cur_cmt" style="font-weight: normal">Comment</h3>
+    </div>
+  </div>
+
+  <div class="days">
+    <h1 id="region" style="font-size: 3rem">Location</h1>
+    <table>
+      <tr>
+        <td>Precipitation</td>
+        <td id="cur_pre" style="font-weight: normal; text-align: right">
+          Precipitation
+        </td>
+      </tr>
+      <tr>
+        <td>Humidity</td>
+        <td id="cur_humid" style="font-weight: normal; text-align: right">
+          Humidity
+        </td>
+      </tr>
+      <tr>
+        <td>Wind</td>
+        <td id="cur_wind" style="font-weight: normal; text-align: right">
+          Wind
+        </td>
+      </tr>
+    </table>
+    <div class="rest-of-week">
+      <div class="day-of-week-start" id="day-one">Day1</div>
+      <div class="day-of-week" id="day-two">Day2</div>
+      <div class="day-of-week" id="day-three">Day3</div>
+      <div class="day-of-week-end" id="day-four">Day4</div>
+    </div>
+  </div>
+  <script>
+    // https://weatherdbi.herokuapp.com/documentation/v1
+    var weather;
+    fetch(
+      "https://weatherdbi.herokuapp.com/data/weather/{{config.default_weather.location}}"
+    )
+      .then((res) => res.json())
+      .then((data) => update_weather(data));
+
+    function update_weather(weather_json) {
+      console.log(weather_json);
+      this.GenDate();
+      document.getElementById("region").textContent = weather_json["region"];
+      document.getElementById("cur_day").textContent =
+        weather_json["currentConditions"]["dayhour"];
+      document.getElementById("cur_tmp").textContent =
+        weather_json["currentConditions"]["temp"]["c"] + "°C";
+      document.getElementById("cur_cmt").textContent =
+        weather_json["currentConditions"]["comment"];
+      document.getElementById("weather_icon").className = weather_to_icon(
+        weather_json["currentConditions"]["iconURL"]
+      );
+
+      document.getElementById("cur_pre").textContent =
+        weather_json["currentConditions"]["precip"];
+      document.getElementById("cur_humid").textContent =
+        weather_json["currentConditions"]["humidity"];
+      document.getElementById("cur_wind").textContent =
+        weather_json["currentConditions"]["wind"]["mile"] + " mp/h";
+
+      document.getElementById("left-weather-box").style.backgroundColor =
+        weather_to_color(weather_json["currentConditions"]["iconURL"]);
+
+      document.getElementById("day-one").innerHTML = `
+          <div class="day-icon-box">
+            <i class="mini-icon ${weather_to_icon(
+              weather_json["next_days"][0]["iconURL"]
+            )}"></i>
+            </div>
+            <div>
+            <h3 style="font-weight: normal">
+              ${weather_json["next_days"][0]["day"].substring(0, 3)}</h3>
+            <h1>${weather_json["next_days"][0]["max_temp"]["c"]}°C</h1>
+            </div>
+          </div>`;
+      document.getElementById("day-one").style.backgroundColor =
+        weather_to_color(weather_json["next_days"][0]["iconURL"]);
+
+      document.getElementById("day-two").innerHTML = `
+          <div class="day-icon-box">
+            <i class="mini-icon ${weather_to_icon(
+              weather_json["next_days"][1]["iconURL"]
+            )}"></i>
+
+            </div>
+            <div>
+            <h3 style="font-weight: normal">
+              ${weather_json["next_days"][1]["day"].substring(0, 3)}</h3>
+            <h1>${weather_json["next_days"][1]["max_temp"]["c"]}°C</h1>
+            </div>
+          </div>`;
+      document.getElementById("day-two").style.backgroundColor =
+        weather_to_color(weather_json["next_days"][1]["iconURL"]);
+
+      document.getElementById("day-three").innerHTML = `
+          <div class="day-icon-box">
+            <i class="mini-icon ${weather_to_icon(
+              weather_json["next_days"][2]["iconURL"]
+            )}"></i>
+            </div>
+            <div>
+            <h3 style="font-weight: normal">
+              ${weather_json["next_days"][2]["day"].substring(0, 3)}</h3>
+            <h1>${weather_json["next_days"][2]["max_temp"]["c"]}°C</h1>
+            </div>
+          </div>`;
+      document.getElementById("day-three").style.backgroundColor =
+        weather_to_color(weather_json["next_days"][2]["iconURL"]);
+
+      document.getElementById("day-four").innerHTML = `
+          <div class="day-icon-box">
+            <i class="mini-icon ${weather_to_icon(
+              weather_json["next_days"][3]["iconURL"]
+            )}"></i>
+            </div>
+            <div>
+            <h3 style="font-weight: normal">
+              ${weather_json["next_days"][3]["day"].substring(0, 3)}</h3>
+            <h1>${weather_json["next_days"][3]["max_temp"]["c"]}°C</h1>
+            </div>
+          </div>`;
+      document.getElementById("day-four").style.backgroundColor =
+        weather_to_color(weather_json["next_days"][3]["iconURL"]);
+    }
+
+    function GenDate() {
+      // Creating object of the Date class
+      var date = new Date();
+      var day = date.getDate();
+      var month = date.getMonth();
+      var year = date.getFullYear();
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      day = update(day);
+
+      document.getElementById("cur_date").innerText =
+        day + " " + monthNames[month] + " " + year;
+    }
+
+    function update(t) {
+      if (t < 10) {
+        return "0" + t;
+      } else {
+        return t;
+      }
+    }
+
+    function weather_to_icon(weather_icon) {
+      var icon = weather_icon.split("/");
+      var icon = icon[icon.length - 1];
+      var icons = {
+        "sunny.png": "wi wi-day-sunny",
+        "cloudy.png": "wi wi-cloudy",
+        "partly_cloudy.png": "wi wi-day-cloudy",
+        "rain_light.png": "wi wi-day-snow-wind",
+        "rain_s_cloudy.png": "wi wi-showers",
+        "rain.png": "wi wi-rain",
+        "rain_light.png": "wi wi-snow",
+        "thunderstorms.png": "wi wi-thunderstorm",
+      };
+      console.log(weather);
+      console.log(icons[icon]);
+      return icons[icon];
+    }
+
+    function weather_to_color(weather_icon) {
+      var icon = weather_icon.split("/");
+      var icon = icon[icon.length - 1];
+      var color = {
+        "sunny.png": "#FFD966",
+        "cloudy.png": "#f0ad4e",
+        "partly_cloudy.png": "#F4A923",
+        "rain_light.png": "#79A1AA",
+        "rain_s_cloudy.png": "#1f9bcf",
+        "rain.png": "#007bff",
+        "rain_light.png": "#1f9bcf",
+        "thunderstorms.png": "#343a40",
+      };
+      console.log(icon);
+      console.log(color[icon]);
+      return color[icon];
+    }
+  </script>
+  {% endblock %}
+  <!-- https://erikflowers.github.io/weather-icons/ -->
+  <!-- https://weatherdbi.herokuapp.com/data/weather/italy -->
 </div>
-{% endblock %}

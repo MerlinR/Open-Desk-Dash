@@ -1,0 +1,18 @@
+{% extends "config_base.html" %} {% block title %}Default Weather {% endblock%}
+{%block body %}
+<div class="title">
+    <h1>Default Weather Setting</h1>
+  </div>
+  <hr>
+  <form action="/default_weather/config" method= "POST">
+    <br>
+    <div style="display: table-row">
+        <label for="page_order">Location: </label>
+        <input size="30" type="text" name="location" value="{{config.default_weather.location}}"/></input>
+    </div>
+    <br>
+    <button class="button-positive" type="submit">Save</button><br>
+  </form>
+  <small>Powered by https://weatherdbi.herokuapp.com</small>
+  {% endblock %}
+  

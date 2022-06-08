@@ -1,6 +1,6 @@
 # Open Desk Dash
 
-Open Source Desk Dashboard, a barebone hackable WebUI desk dashboard with Plugin support. Designed to be simple, elegant and easily customisable to fit any need.
+Open Source Desk Dashboard, a barebone hackable WebUI desk dashboard with Plugin support. Designed to be simple yet easily customisable to fit any need.
 Plugins can be easily created, installed and customised. Using Flask and blueprint's to allow an easy way designed Web UI pages that will seemly integrate into the Dashboard and control.
 
 Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support No control, Touch screen, Integrated buttons. Screen size is irrelevant as individual plugins can support any screen size they desire
@@ -16,11 +16,12 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
     - Individual Plugin Database's for customisation
     - framework for plugin Configuration WebUI page
 
-### To Do
+### Backlog
 - Theme's
-    - Entire Dash theme overridable
+    - Entire Dash theme's overridable
 - Pages can have up and down rotate, for slight variants of same page
-- Allow external sites and use iframe in base template for rotation
+- All Dash popups
+    - Regardless of what current dash is showing, enable toast popups for emails, messages, etc
 
 ### Plugins
 
@@ -42,5 +43,12 @@ api = Blueprint("example", __name__, url_prefix="/example")
 
 ### Alpha
 
+- Dashes
+    - Default dash RSI feed - news / hackaday
+    - Customizable streamdeck, 3x2 grid of custom buttons that call's API's
+        - Custom icons, text and API call
+    - Spotify dash (show playing, give basic buttons) - use wallpaper as background
+    - Dash that displays external sites and use iframe in base template for rotation
 - Self auto-update
+- find way to restart self
 - Easy install Script

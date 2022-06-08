@@ -9,7 +9,7 @@ async function autoTransition() {
 async function pageChange(direction) {
   var blinking = document.getElementById("fadein");
   blinking.id = "fadeout";
-  await sleep(1850);
+  await sleep(2900);
   window.location.href = window.location.origin + direction;
 }
 

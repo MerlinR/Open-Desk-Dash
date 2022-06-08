@@ -6,6 +6,10 @@ function snackbar() {
   if (!snack) {
     var snack = document.getElementById("snackbar_info");
   }
+  if (!snack) {
+    var snack = document.getElementById("snackbar_");
+    snack.setAttribute("id", "snackbar_positive");
+  }
   if (snack.textContent) {
     snack.className = "show";
 

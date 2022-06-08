@@ -9,10 +9,12 @@ def setup(app: Flask):
             {
                 "title": int,
                 "imageLink": str,
+                "textColor": str,
             },
             {
                 "title": "Open Desk Dash",
                 "imageLink": "https://giffiles.alphacoders.com/209/209343.gif",
+                "textColor": "#22262e",
             },
         )
 
@@ -24,18 +26,21 @@ def dashboard():
 
 @api.route("/config", methods=["GET", "POST"])
 def dashboard_config():
+    extra = {"msg": "", "type": ""}
     if request.method == "POST":
         try:
-            new_title = request.form["dash_title"]
-            new_image = request.form["dash_image"]
             current_app.save_config(
                 {
-                    "title": new_title,
-                    "imageLink": new_image,
+                    "title": request.form["dash_title"],
+                    "imageLink": request.form["dash_image"],
+                    "textColor": request.form["text_color"],
                 }
             )
-
+            extra["msg"] = "Saved"
         except Exception as e:
-            print("Failed to save config")
-            print(e)
-    return render_template("default_dashboard/config.html")
+            print(f"Failed to save config, {e}")
+            extra = {"msg": f"Failed, {e}", "type": "error"}
+
+    return render_template(
+        "default_dashboard/config.html", msg=extra["msg"], msg_type=extra["type"]
+    )

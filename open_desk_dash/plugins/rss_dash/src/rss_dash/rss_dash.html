@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block title %}RSS Dash{% endblock %} {% block body
+%} <link rel="stylesheet" href={{ url_for('rss_dash.static',
+filename='css/styles.css') }}>
+<!-- {{feed}} -->
+<h1>{{feed.title}}</h1>
+{% for item in items %}
+<div class="item">
+  {% if item.image %}
+  <div class="image-section">
+    <img src="{{item.image}}" height="100%" width="100%" alt="Italian Trulli" />
+  </div>
+  <div class="content-section">
+    {% else %}
+    <div class="content-section" style="width: 100%">
+      {% endif %}
+
+      <a href="{{item.link}}"> <h4>{{item.title}}</h4></a>
+      <p>{{item.summary}}</p>
+      <small class="bottom">{{item.published}}</small>
+    </div>
+  </div>
+</div>
+{% endfor %} {% endblock %}

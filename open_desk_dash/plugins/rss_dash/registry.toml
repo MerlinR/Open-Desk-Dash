@@ -1,0 +1,6 @@
+[plugin]
+title = "RSS Dash"
+description = "Dash page to display a RSS feed, powered by https://www.npmjs.com/package/rss-parser"
+author = "Default"
+github = "https://github.com/MerlinR/Open-Desk-Dash"
+version = "1.0"

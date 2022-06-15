@@ -19,6 +19,8 @@ ODDash.config["path_to_name"] = {}
 ODDash.config["def_plugins"] = [
     "default_dashboard",
     "default_weather",
+    "rss_dash",
+    "external_dash",
 ]
 
 with ODDash.app_context():
@@ -41,7 +43,9 @@ def page_not_found(e):
     return redirect(ODDash.config["config"]["pages"][0])
 
 
-def fuzzy_index(srch: str, within: list) -> int:
+def fuzzy_index(srch: str, extra: str, within: list) -> int:
+    if extra:
+        srch = f"{srch}?{extra}"
     for i, page in enumerate(within):
         if srch in page:
             return i
@@ -52,7 +56,7 @@ def fuzzy_index(srch: str, within: list) -> int:
 def next_dash():
     prev_page = url_parse(request.referrer)
     indx = fuzzy_index(
-        f"{prev_page.path}?{prev_page.query}", ODDash.config["config"]["pages"]
+        prev_page.path, prev_page.query, ODDash.config["config"]["pages"]
     )
     indx += 1
     if indx == len(ODDash.config["config"]["pages"]):
@@ -64,7 +68,7 @@ def next_dash():
 def prev_dash():
     prev_page = url_parse(request.referrer)
     indx = fuzzy_index(
-        f"{prev_page.path}?{prev_page.query}", ODDash.config["config"]["pages"]
+        prev_page.path, prev_page.query, ODDash.config["config"]["pages"]
     )
     indx -= 1
     if indx < 0:

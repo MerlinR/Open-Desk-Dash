@@ -1,0 +1,6 @@
+[plugin]
+title = "External Dash"
+description = "Dash page which can hold external website's but keep the rotation. Note: This download's a copy of the site, therefore wont be updated until reload + links will redirect out of rotation"
+author = "Default"
+github = "https://github.com/MerlinR/Open-Desk-Dash"
+version = "1.0"

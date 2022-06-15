@@ -19,7 +19,7 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
 ### Backlog
 - Theme's
     - Entire Dash theme's overridable
-- Pages can have up and down rotate, for slight variants of same page
+- Pages can have up and down rotation, manually rotated.
 - All Dash popups
     - Regardless of what current dash is showing, enable toast popups for emails, messages, etc
 
@@ -40,15 +40,13 @@ api = Blueprint("example", __name__, url_prefix="/example")
 ```
 
 ## To-Do
-
-### Alpha
-
 - Dashes
-    - Default dash RSI feed - news / hackaday
     - Customizable streamdeck, 3x2 grid of custom buttons that call's API's
         - Custom icons, text and API call
     - Spotify dash (show playing, give basic buttons) - use wallpaper as background
-    - Dash that displays external sites and use iframe in base template for rotation
+
+### Alpha
+
 - Self auto-update
 - find way to restart self
 - Easy install Script

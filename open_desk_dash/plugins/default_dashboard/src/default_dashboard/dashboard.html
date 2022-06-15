@@ -6,14 +6,14 @@
 
 <body class="contain" style="background-image: url('{{config.default_dashboard.imageLink}}');
 background-size: 100% 100%;">
-    <div class="title text-dark" style="padding:25px">
-        <h1>{{config.default_dashboard.title}}</h1>
+    <div class="title" style="padding:25px;">
+        <h1 style="color: {{config.default_dashboard.textColor}}">{{config.default_dashboard.title}}</h1>
     </div>
     
-    <div id="digital-clock" class="text-dark">
+    <div id="digital-clock" style="color: {{config.default_dashboard.textColor}}">
         <script src={{ url_for('default_dashboard.static', filename='js/clock.js') }}></script>
     </div>
-    <div id="digital-date" class="text-dark">
+    <div id="digital-date" style="color: {{config.default_dashboard.textColor}}">
         <script src={{ url_for('default_dashboard.static', filename='js/clock.js') }}></script>
     </div>
 </body>

@@ -16,6 +16,10 @@ PLUGIN_DIR = "plugins"
 ODDash.config.from_object("configs.config.Config")
 ODDash.register_blueprint(cfg_api)
 ODDash.config["path_to_name"] = {}
+ODDash.config["def_plugins"] = [
+    "default_dashboard",
+    "default_weather",
+]
 
 with ODDash.app_context():
     setup_DB_control()
@@ -47,7 +51,9 @@ def fuzzy_index(srch: str, within: list) -> int:
 @ODDash.route("/next", methods=["GET"])
 def next_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(prev_page.path, ODDash.config["config"]["pages"])
+    indx = fuzzy_index(
+        f"{prev_page.path}?{prev_page.query}", ODDash.config["config"]["pages"]
+    )
     indx += 1
     if indx == len(ODDash.config["config"]["pages"]):
         indx = 0
@@ -57,7 +63,9 @@ def next_dash():
 @ODDash.route("/prev", methods=["GET"])
 def prev_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(prev_page.path, ODDash.config["config"]["pages"])
+    indx = fuzzy_index(
+        f"{prev_page.path}?{prev_page.query}", ODDash.config["config"]["pages"]
+    )
     indx -= 1
     if indx < 0:
         indx = len(ODDash.config["config"]["pages"]) - 1

@@ -335,7 +335,7 @@ class PluginManager:
 
     def update_plugin_check(self):
         for name, plugin in self.plugins.items():
-            if name in ["default_dashboard", "default_weather"]:
+            if name in self.app.config["def_plugins"]:
                 continue
             print(f"Checking {name} for updates")
             accountName = plugin.github.split("/")[-2]
@@ -370,8 +370,26 @@ class PluginManager:
         self.plugin_delete(plugin.name)
         self.plugin_install(plugin.github)
 
+    def __setitem__(self, key, item):
+        self.plugins[key] = item
+
+    def __getitem__(self, key):
+        return self.plugins[key]
+
+    def __repr__(self):
+        return repr(self.plugins)
+
+    def __len__(self):
+        return len(self.plugins)
+
     def __delitem__(self, key):
         del self.plugins[key]
+
+    def clear(self):
+        return self.plugins.clear()
+
+    def copy(self):
+        return self.plugins.copy()
 
     def has_key(self, k):
         return k in self.plugins
@@ -384,3 +402,9 @@ class PluginManager:
 
     def values(self):
         return self.plugins.values()
+
+    def items(self):
+        return self.plugins.items()
+
+    def pop(self, *args):
+        return self.plugins.pop(*args)

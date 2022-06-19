@@ -12,6 +12,7 @@
     filename='css/')}}{{config.config.theme}}.css"
     />
     <script src={{ url_for('static', filename='js/control.js') }}></script>
+    <script src={{ url_for('static', filename='js/extra.js') }}></script>
     <script>
      if ({{config.config.transition}} != 0){
         setTimeout(autoTransition, {{config.config.transition}} * 1000);
@@ -21,4 +22,9 @@
   <body class="contain" id="fadein">
     {% block body %}{% endblock %}
   </body>
+
+  <div id="snackbar_{{msg_type}}">{{msg}}</div>
+  <script type="text/javascript">
+    snackbar()
+  </script>
 </html>

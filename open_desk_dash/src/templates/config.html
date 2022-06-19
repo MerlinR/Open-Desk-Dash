@@ -42,12 +42,19 @@ body %}
   <div class="pages_container" style="display: table-row">
     <label for="pages">Page Order: </label>
     <br />
+    <table style="width: 100%">
+      <tr>
+        <th>Page</th>
+        <th>GET Arguments</th>
+      </tr>
+    </table>
+    <br />
 
     <button onclick="addElement()" type="button" class="button-diddy">
       <i class="bx bxs-plus-circle"></i>
     </button>
 
-    <select name="pages">
+    <select name="pages" style="width: 200px">
       {% for plugin in config["plugins"].plugins.values() %} {% for page in
       plugin['pages'] %} {% if page == pages[0]%}
       <option value="{{page}}" selected>{{page}}</option>
@@ -55,8 +62,12 @@ body %}
       <option value="{{page}}">{{page}}</option>
       {% endif %} {% endfor %} {% endfor %}
     </select>
-    <input type="text" name="pages_vars" value="{{page_vars[0]}}" />
-    <small>GET arguments, name=myName.</small>
+    <input
+      type="text"
+      style="width: 300px"
+      name="pages_vars"
+      value="{{page_vars[0]}}"
+    />
 
     {% for sel_page in pages[1:] %}
     <div style="float: left" id="{{loop.index-1}}">
@@ -67,7 +78,7 @@ body %}
       >
         <i class="bx bx-x"></i>
       </button>
-      <select name="pages">
+      <select name="pages" style="width: 200px">
         {% for plugin in config["plugins"].plugins.values() %} {% for page in
         plugin['pages'] %} {% if page == sel_page%}
         <option value="{{page}}" selected>{{page}}</option>
@@ -75,12 +86,19 @@ body %}
         <option value="{{page}}">{{page}}</option>
         {% endif %} {% endfor %} {% endfor %}
       </select>
-      <input type="text" name="pages_vars" value="{{page_vars[loop.index]}}" />
+      <input
+        type="text"
+        style="width: 300px"
+        name="pages_vars"
+        value="{{page_vars[loop.index]}}"
+      />
     </div>
     {% endfor %}
   </div>
 
   <hr />
+  <small>GET arguments, name=myName,link=MyLink.</small>
+  <br />
   <button class="button-positive" type="submit">Save</button>
 </form>
 
@@ -91,14 +109,14 @@ body %}
     var wrapper = document.getElementsByClassName("pages_container")[0];
     new_form = `<div style="float:left" id="${globalThis.indx}">
                 <button type="button" onclick="deleteElement(${globalThis.indx})" class="button-diddy"><i class="bx bx-x"></i></button>
-                  <select name="pages">
+                  <select name="pages" style="width: 200px">
                       {% for plugin, data in config["plugins"].plugins.items() %}
                         {% for page in data['pages'] %}
                           <option value="{{page}}" SELECTED>{{page}}</option>"
                         {% endfor %}
                       {% endfor %}
                   </select>
-                  <input type="text" name="pages_vars">
+                  <input style="width: 300px;" type="text" name="pages_vars">
                 </div>`;
     wrapper.innerHTML += new_form;
     globalThis.indx += 1

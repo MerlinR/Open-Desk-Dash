@@ -7,7 +7,7 @@ def setup(app: Flask):
     with app.app_context():
         current_app.create_config(
             {
-                "title": int,
+                "title": str,
                 "imageLink": str,
                 "textColor": str,
             },

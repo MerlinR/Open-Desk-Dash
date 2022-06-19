@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %}RSS Dash{% endblock %} {% block body
-%} <link rel="stylesheet" href={{ url_for('rss_dash.static',
-filename='css/styles.css') }}>
+%} <link rel="stylesheet" href={{ url_for('.static', filename='css/styles.css')
+}}>
 <!-- {{feed}} -->
 <h1>{{feed.title}}</h1>
 {% for item in items %}

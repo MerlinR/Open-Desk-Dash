@@ -2,7 +2,7 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
-<link rel="stylesheet" href={{ url_for('default_dashboard.static', filename='css/styles.css') }}>
+<link rel="stylesheet" href={{ url_for('.static', filename='css/styles.css') }}>
 
 <body class="contain" style="background-image: url('{{config.default_dashboard.imageLink}}');
 background-size: 100% 100%;">
@@ -11,10 +11,10 @@ background-size: 100% 100%;">
     </div>
     
     <div id="digital-clock" style="color: {{config.default_dashboard.textColor}}">
-        <script src={{ url_for('default_dashboard.static', filename='js/clock.js') }}></script>
+        <script src={{ url_for('.static', filename='js/clock.js') }}></script>
     </div>
     <div id="digital-date" style="color: {{config.default_dashboard.textColor}}">
-        <script src={{ url_for('default_dashboard.static', filename='js/clock.js') }}></script>
+        <script src={{ url_for('.static', filename='js/clock.js') }}></script>
     </div>
 </body>
 {% endblock %}

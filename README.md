@@ -7,46 +7,39 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
 
 ## Features
 
-- Configuration
-    - Usage configurable
+- Rotating Dash boards
+  - Default Dashboard
+  - Default Weather
+  - RSS Dash
+  - External Site Dash
+- Self Updating
+- Configurable
 - Plugins
-    - Easily Modular with Plugins
-    - Auto Plugin Update's via github
-    - Manual or Automatic install via web interface and github
-    - Individual Plugin Database's for customisation
-    - framework for plugin Configuration WebUI page
+  - Easily Modular with Plugins
+  - Auto Plugin Update's via github
+  - Manual or Automatic install via web interface and github
+  - Individual Plugin Database's for customisation
+  - framework for plugin Configuration WebUI page
 
 ### Backlog
+
 - Theme's
-    - Entire Dash theme's overridable
+  - Entire Dash theme's overridable
 - Pages can have up and down rotation, manually rotated.
+- Dashes
+  -
+  - Spotify dash (show playing, give basic buttons) - use wallpaper as background
 - All Dash popups
-    - Regardless of what current dash is showing, enable toast popups for emails, messages, etc
+  - Regardless of what current dash is showing, enable toast pop-ups for emails, messages, etc
 
 ### Plugins
-
-The desktop service API can easily be extended with Plugins, by creating a flask blueprint and inserting the module into the "plugins" directory.
-The blueprint module directory name and primary python script must have the same name, and the blueprint must be called api.
+Plugins can be developed easily in Python using Flask, see the docs [here](Dev_plugin_guide.md)
 
 ```
-├── plugins
-│   ├── example
-│   │   ├── example.py
-│   │   ├── __init__.py
-```
-
-```
-api = Blueprint("example", __name__, url_prefix="/example")
-```
-
-## To-Do
-- Dashes
-    - Customizable streamdeck, 3x2 grid of custom buttons that call's API's
-        - Custom icons, text and API call
-    - Spotify dash (show playing, give basic buttons) - use wallpaper as background
 
 ### Alpha
-
+- Customizable streamdeck, 3x2 grid of custom buttons that call's API's
+    - Custom icons, text and API call
 - Self auto-update
 - find way to restart self
 - Easy install Script

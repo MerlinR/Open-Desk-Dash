@@ -1,4 +1,5 @@
 import importlib
+import inspect
 import os
 import shutil
 import sqlite3
@@ -11,9 +12,10 @@ from typing import Callable, Dict, List, Union
 import pip
 import requests
 import toml
-from flask import Blueprint, Flask
+from flask import Blueprint, Flask, current_app
 from open_desk_dash.lib.db_control import get_config_db
 from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
+from open_desk_dash.lib.plugin_utils import get_my_path
 
 GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
 
@@ -104,6 +106,7 @@ class PluginManager:
                     self.plugins[registry["name"]].save_to_db()
                 except Exception as e:
                     print(f"Failed to register plugin due to..\n{e}")
+            self.app.get_my_path = get_my_path
 
     def import_plugins(self):
         for name, plugin in self.plugins.items():

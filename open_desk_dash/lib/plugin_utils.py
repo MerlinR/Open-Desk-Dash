@@ -1,9 +1,9 @@
 import inspect
 
-from flask import current_app
+from flask import current_app, request
 
 
-def get_my_path():
+def plugin_path() -> str:
     """
     Will gather the plugin's Config into the global variables, automatically called when saving configs.
     """
@@ -13,5 +13,11 @@ def get_my_path():
         if plugins.path in calframe[1][1]:
             return plugins.path
     if not name:
-        print("No DB name to create")
+        print("No DB found")
         return
+
+
+def plugin_config(config_name: str) -> str:
+    for plugin in current_app.config["plugins"].keys():
+        if plugin == request.blueprint:
+            return current_app.config[plugin].get(config_name)

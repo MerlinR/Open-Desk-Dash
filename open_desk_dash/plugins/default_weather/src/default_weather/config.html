@@ -6,9 +6,9 @@
   <hr>
   <form action="/default_weather/config" method= "POST">
     <br>
-    <div style="display: table-row">
+    <div class="config_row">
         <label for="page_order">Location: </label>
-        <input size="30" type="text" name="location" value="{{config.default_weather.location}}"/></input>
+        <input size="30" type="text" name="location" value="{{plugin_config('location')}}"/></input>
     </div>
     <br>
     <button class="button-positive" type="submit">Save</button><br>

@@ -4,6 +4,7 @@ from werkzeug.urls import url_parse
 from open_desk_dash.config import cfg_api
 from open_desk_dash.lib.db_control import setup_DB_control
 from open_desk_dash.lib.plugin_control import PluginManager
+from open_desk_dash.lib.plugin_utils import plugin_config
 from open_desk_dash.lib.update_control import update_check
 
 ODDash = Flask(
@@ -11,6 +12,8 @@ ODDash = Flask(
     template_folder="./src/templates",
     static_folder="./src/static",
 )
+ODDash.jinja_env.globals["plugin_config"] = plugin_config
+
 PLUGIN_DIR = "plugins"
 
 ODDash.config.from_object("configs.config.Config")

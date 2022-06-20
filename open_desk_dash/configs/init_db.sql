@@ -30,4 +30,4 @@ CREATE TABLE plugins (
 );
 
 INSERT INTO config (transition, pages, autoUpdate, autoUpdatePlugins, theme, github, version, versionName)
-VALUES(30, "/default_dashboard/,/default_weather/", 1, 1, "default_dark", "https://github.com/MerlinR/Open-Desk-Dash", "0.1", "Alpha");
+VALUES(30, "/default_dashboard/,/default_weather/,/rss_dash/", 1, 1, "default_dark", "https://github.com/MerlinR/Open-Desk-Dash", "0.1", "Alpha");

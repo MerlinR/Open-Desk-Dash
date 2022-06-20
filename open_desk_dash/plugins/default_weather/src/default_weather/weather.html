@@ -54,7 +54,7 @@
     // https://weatherdbi.herokuapp.com/documentation/v1
     var weather;
     fetch(
-      "https://weatherdbi.herokuapp.com/data/weather/{{config.default_weather.location}}"
+      "https://weatherdbi.herokuapp.com/data/weather/{{plugin_config('location')}}"
     )
       .then((res) => res.json())
       .then((data) => update_weather(data));

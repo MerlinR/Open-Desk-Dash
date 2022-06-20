@@ -6,17 +6,17 @@
   <hr>
   <form action="/default_dashboard/config" method= "POST">
     <br>
-    <div style="display: table-row">
+    <div class="config_row">
         <label for="page_order">Title: </label>
-        <input size="30" type="text" name="dash_title" value="{{config.default_dashboard.title}}"/></input>
+        <input size="30" type="text" name="dash_title" value="{{plugin_config('title')}}"/></input>
     </div>
-    <div style="display: table-row">
+    <div class="config_row">
       <label for="page_order">Image Link: </label>
-      <input size="40" type="text" name="dash_image" value="{{config.default_dashboard.imageLink}}"/></input>
+      <input size="40" type="text" name="dash_image" value="{{plugin_config('imageLink')}}"/></input>
     </div>
-    <div style="display: table-row">
+    <div class="config_row">
       <label for="page_order">Text Color: </label>
-      <input type="color" name="text_color" value="{{config.default_dashboard.textColor}}"/></input>
+      <input type="color" name="text_color" value="{{plugin_config('textColor')}}"/></input>
     </div>
     <br>
     <button class="button-positive" type="submit">Save</button><br>

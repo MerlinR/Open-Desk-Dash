@@ -106,9 +106,9 @@ def create_config(schema: dict, init_data: dict = None):
         return
 
     sql_schema_list = []
-    types = {str: "TEXT", int: "INTEGER", float: "FLOAT", None: "BLOB"}
+    types = {str: "TEXT", int: "INTEGER", float: "FLOAT", list: "TEXT", None: "BLOB"}
     for key, value in schema.items():
-        if value not in [str, int, float, None]:
+        if value not in [str, int, float, list, None]:
             print(f"Error: {name} Config {key} attempting to save as {value}")
         else:
             sql_schema_list.append(f"{key} {types[value]}")

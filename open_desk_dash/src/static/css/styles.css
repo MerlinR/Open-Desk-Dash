@@ -394,6 +394,10 @@ input[type="checkbox"]:disabled {
   opacity: 0.5;
 }
 
+.config_row {
+  display: table-row;
+}
+
 /* SnackBar */
 #snackbar_positive,
 #snackbar_info,
@@ -417,8 +421,8 @@ input[type="checkbox"]:disabled {
 #snackbar_info.show,
 #snackbar_error.show {
   visibility: visible;
-  -webkit-animation: snack_fadein 0.5s, snack_fadeout 0.5s 2.5s;
-  animation: snack_fadein 0.5s, snack_fadeout 0.5s 2.5s;
+  -webkit-animation: snack_fadein 0.5s, snack_fadeout 0.5s 5s;
+  animation: snack_fadein 0.5s, snack_fadeout 0.5s 5s;
 }
 
 #snackbar_positive {

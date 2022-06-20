@@ -4,16 +4,16 @@
 {% block body %}
 <link rel="stylesheet" href={{ url_for('.static', filename='css/styles.css') }}>
 
-<body class="contain" style="background-image: url('{{config.default_dashboard.imageLink}}');
+<body class="contain" style="background-image: url('{{plugin_config('imageLink')}}');
 background-size: 100% 100%;">
     <div class="title" style="padding:25px;">
-        <h1 style="color: {{config.default_dashboard.textColor}}">{{config.default_dashboard.title}}</h1>
+        <h1 style="color: {{plugin_config('textColor')}}">{{plugin_config('title')}}</h1>
     </div>
     
-    <div id="digital-clock" style="color: {{config.default_dashboard.textColor}}">
+    <div id="digital-clock" style="color: {{plugin_config('textColor')}}">
         <script src={{ url_for('.static', filename='js/clock.js') }}></script>
     </div>
-    <div id="digital-date" style="color: {{config.default_dashboard.textColor}}">
+    <div id="digital-date" style="color: {{plugin_config('textColor')}}">
         <script src={{ url_for('.static', filename='js/clock.js') }}></script>
     </div>
 </body>

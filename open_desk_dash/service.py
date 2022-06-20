@@ -14,11 +14,8 @@ ODDash = Flask(
 )
 ODDash.jinja_env.globals["plugin_config"] = plugin_config
 
-PLUGIN_DIR = "plugins"
-
 ODDash.config.from_object("configs.config.Config")
 ODDash.register_blueprint(cfg_api)
-ODDash.config["path_to_name"] = {}
 ODDash.config["def_plugins"] = [
     "default_dashboard",
     "default_weather",
@@ -29,7 +26,7 @@ ODDash.config["def_plugins"] = [
 with ODDash.app_context():
     setup_DB_control()
     update_check()
-    ODDash.config["plugins"] = PluginManager(ODDash, PLUGIN_DIR)
+    ODDash.config["plugins"] = PluginManager(ODDash, "plugins")
     ODDash.config["plugins"].register_plugins()
     ODDash.config["plugins"].update_plugin_check()
     ODDash.config["plugins"].import_plugins()

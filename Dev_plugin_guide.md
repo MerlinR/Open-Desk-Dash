@@ -172,7 +172,7 @@ plugins/<NAME>/
 
 # Jinga2(template) API
 
-# plugin_config
+## plugin_config
 Used to get your plugin Config's
 ```
 {{plugin_config('iconRadius')}}
@@ -186,3 +186,13 @@ When calling local files using "url_for" ensure you dont specify the blueprint n
 ```
 <link rel="stylesheet" href={{ url_for('.static', filename='css/styles.css') }}>
 ``` 
+
+## Calling back
+
+As stated the plugin/blueprint name may change, to avoid this issues there should be not hardcoded instances of te blueprint name within the plugin, an easy solution within Jinga2 templates is to get the blueprint name via requests:
+
+```
+{{request.blueprint}}
+```
+
+This will return the current blueprint name.

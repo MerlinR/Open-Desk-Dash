@@ -4,7 +4,7 @@
     <h1>Default Weather Setting</h1>
   </div>
   <hr>
-  <form action="/default_weather/config" method= "POST">
+  <form action="/{{request.blueprint}}/config" method= "POST">
     <br>
     <div class="config_row">
         <label for="page_order">Location: </label>

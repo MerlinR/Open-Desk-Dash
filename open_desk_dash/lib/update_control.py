@@ -36,7 +36,11 @@ def version_check(link: str):
     accountName = link.split("/")[-2]
     repoName = link.split("/")[-1]
     git_api_link = GIT_RELEASE_PATH.format(author=accountName, repo=repoName)
-    response = requests.get(git_api_link)
+    try:
+        response = requests.get(git_api_link)
+    except requests.exceptions.ConnectionError:
+        print("No internet")
+        return None
     if response.status_code != 200:
         return None
     return response.json()

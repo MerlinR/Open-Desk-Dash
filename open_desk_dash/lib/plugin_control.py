@@ -330,7 +330,13 @@ class PluginManager:
 
     def plugin_api_check(self, author: str, repo: str):
         git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
-        response = requests.get(git_api_link)
+
+        try:
+            response = requests.get(git_api_link)
+        except requests.exceptions.ConnectionError:
+            print("No internet")
+            return None
+
         if response.status_code == 403:
             return response.json()
         elif response.status_code != 200:

@@ -2,25 +2,24 @@ import inspect
 import os
 import sqlite3
 
-from flask import current_app
+from flask import current_app, request
 
 INIT_SCHEMA = "./configs/init_db.sql"
 
 
 def get_config_db() -> sqlite3.Connection:
-    db_path = os.path.join(current_app.config["DATABASE_LOCATION"], "config_storage.db")
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
     return connection
 
 
 def gather_config_db() -> sqlite3.Connection:
-    db_path = os.path.join(current_app.config["DATABASE_LOCATION"], "config_storage.db")
     connection = None
-    if not os.path.exists(db_path):
-        connection = sqlite3.connect(db_path)
+
+    if not os.path.exists(current_app.config["CONFIG_DB_LOCATION"]):
+        connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
         connection.executescript(read_schema())
     else:
-        connection = sqlite3.connect(db_path)
+        connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
 
     cur = connection.cursor()
 
@@ -43,20 +42,24 @@ def read_schema() -> str:
 
 
 def create_db(schema: str = ""):
-    calframe = inspect.getouterframes(inspect.currentframe(), 2)
-    name = None
-    for plugins in current_app.config["plugins"].values():
-        if plugins.path in calframe[1][1]:
-            name = plugins.name
-    if not name:
+    calling_func = inspect.getouterframes(inspect.currentframe(), 2)[1][1]
+
+    try:
+        plugin_name = [
+            plugin.name
+            for plugin in current_app.config["plugins"].values()
+            if plugin.path in calling_func
+        ][0]
+    except IndexError:
         print("No DB name to create")
         return
 
     db_path = os.path.join(
-        current_app.config["DATABASE_LOCATION"], f"{name}_storage.db"
+        current_app.config["DATABASE_LOCATION"], f"{plugin_name}_storage.db"
     )
+
     if os.path.exists(db_path):
-        print(f"DB for {name} exists")
+        print(f"{plugin_name} DB already exists... skipping")
         return None
 
     connection = sqlite3.connect(db_path)
@@ -65,21 +68,14 @@ def create_db(schema: str = ""):
 
 
 def connect_db() -> sqlite3.Connection:
-    calframe = inspect.getouterframes(inspect.currentframe(), 2)
-    name = None
-    for plugins in current_app.config["plugins"].values():
-        if plugins.path in calframe[1][1]:
-            name = plugins.name
-    if not name:
-        print("No DB name to connect too")
-        return
+    plugin_name = request.blueprint
 
     db_path = os.path.join(
-        current_app.config["DATABASE_LOCATION"], f"{name}_storage.db"
+        current_app.config["DATABASE_LOCATION"], f"{plugin_name}_storage.db"
     )
 
     if not os.path.exists(db_path):
-        print(f"Database for {name} does not exist")
+        print(f"Database for {plugin_name} does not exist")
         return None
 
     return sqlite3.connect(db_path)
@@ -95,38 +91,38 @@ def create_config(schema: dict, init_data: dict = None):
     },
     The create_config will not overwrite existing data, and therefore can be repeated inside setup.
     """
-    calframe = inspect.getouterframes(inspect.currentframe(), 2)
+    calling_func = inspect.getouterframes(inspect.currentframe(), 2)[1][1]
 
-    name = None
-    for plugins in current_app.config["plugins"].values():
-        if plugins.path in calframe[1][1]:
-            name = plugins.name
-    if not name:
-        print("No DB name to create")
+    try:
+        plugin_name = [
+            plugin.name
+            for plugin in current_app.config["plugins"].values()
+            if plugin.path in calling_func
+        ][0]
+    except IndexError:
+        print("No DB name to create config for")
         return
 
     sql_schema_list = []
     types = {str: "TEXT", int: "INTEGER", float: "FLOAT", list: "TEXT", None: "BLOB"}
     for key, value in schema.items():
         if value not in [str, int, float, list, None]:
-            print(f"Error: {name} Config {key} attempting to save as {value}")
+            print(f"Error: {plugin_name} Config {key} attempting to save as {value}")
         else:
             sql_schema_list.append(f"{key} {types[value]}")
 
-    sql = f"CREATE TABLE IF NOT EXISTS {name} (id INTEGER PRIMARY KEY, {','.join(sql_schema_list)});"
+    sql = f"CREATE TABLE IF NOT EXISTS {plugin_name} (id INTEGER PRIMARY KEY, {','.join(sql_schema_list)});"
 
-    db_path = os.path.join(current_app.config["DATABASE_LOCATION"], "config_storage.db")
-
-    connection = sqlite3.connect(db_path)
-    connection.executescript(sql)
-
+    connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
     cur = connection.cursor()
-    cur.execute(f"SELECT * FROM {name}")
+    cur.execute(sql)
+
+    cur.execute(f"SELECT * FROM {plugin_name}")
     row = cur.fetchone()
     if init_data and not row:
         values_cleaned = pack_dict_to_list(init_data)
 
-        sql = f"REPLACE INTO {name}(id,{','.join(init_data.keys())}) VALUES(1,{','.join(values_cleaned)});"
+        sql = f"REPLACE INTO {plugin_name}(id,{','.join(init_data.keys())}) VALUES(1,{','.join(values_cleaned)});"
 
         try:
             cur = connection.cursor()
@@ -134,50 +130,33 @@ def create_config(schema: dict, init_data: dict = None):
 
             connection.commit()
         except Exception as e:
-            print(f"Failed to save config for {name}")
+            print(f"Failed to save config for {plugin_name}")
             print(sql)
             print(e)
             connection.rollback()
 
-    load_config(name)
     connection.close()
+
+    load_config(plugin_name)
 
 
 def gather_config():
     """
     Will gather the plugin's Config into the global variables, automatically called when saving configs.
     """
-    calframe = inspect.getouterframes(inspect.currentframe(), 2)
-    name = None
-    for plugins in current_app.config["plugins"].values():
-        if plugins.path in calframe[1][1]:
-            name = plugins.name
-    if not name:
-        print("No DB name to create")
-        return
-
-    load_config(name)
+    load_config(request.blueprint)
 
 
 def save_config(config: dict):
     """
     Will save a dict of config's into the plugins config DB, must match the created config schema.
     """
-    calframe = inspect.getouterframes(inspect.currentframe(), 2)
-    name = None
-    for plugin in current_app.config["plugins"].values():
-        if plugin.path in calframe[1][1]:
-            name = plugin.name
-    if not name:
-        print("No DB name to create")
-        return
+    plugin_name = request.blueprint
 
-    db_path = os.path.join(current_app.config["DATABASE_LOCATION"], "config_storage.db")
-
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
     values_cleaned = pack_dict_to_list(config)
 
-    sql = f"REPLACE INTO {name}(id,{','.join(config.keys())}) VALUES(1,{','.join(values_cleaned)});"
+    sql = f"REPLACE INTO {plugin_name}(id,{','.join(config.keys())}) VALUES(1,{','.join(values_cleaned)});"
 
     try:
         cur = connection.cursor()
@@ -185,19 +164,17 @@ def save_config(config: dict):
 
         connection.commit()
     except Exception as e:
-        print(f"Failed to save config for {name}")
+        print(f"Failed to save config for {plugin_name}")
         print(sql)
         print(e)
         connection.rollback()
     finally:
         connection.close()
-    load_config(name)
+    load_config(plugin_name)
 
 
 def load_config(name: str):
-    db_path = os.path.join(current_app.config["DATABASE_LOCATION"], "config_storage.db")
-
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
     connection.row_factory = sqlite3.Row
     cur = connection.cursor()
     cur.execute(f"SELECT * FROM {name}")
@@ -208,6 +185,10 @@ def load_config(name: str):
 
 
 def pack_dict_to_list(data: dict) -> list:
+    """
+    Convert all values to a str surrounded by single speech mark so can be saved into SQL,
+    convert int/float to str but not surrounding to ensure read as a int/float
+    """
     new_data = []
     for val in data.values():
         if isinstance(val, list):

@@ -39,6 +39,7 @@ version = "1.0"
 api = Blueprint("plugin_name", __name__)
 ```
 
+# Dash page
 
 
 # Config's
@@ -73,6 +74,8 @@ def setup(app: Flask):
 ## Using Config's
 ### Within Template
 ### Within python Blueprint
+
+## Adding Config page
 
 # Blueprint API
 

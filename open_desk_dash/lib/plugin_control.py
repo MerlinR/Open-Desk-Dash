@@ -160,12 +160,14 @@ class PluginManager:
 
     def get_plugin_registry(self, name: str, path: str) -> dict:
         registry = os.path.join(path, "registry.toml")
-        if os.path.exists(registry):
-            config = toml.load(registry)
-            config["plugin"]["name"] = name
-            config["plugin"]["path"] = path
-            return config["plugin"]
-        return None
+
+        if not os.path.exists(registry):
+            return None
+
+        config = toml.load(registry)
+        config["plugin"]["name"] = name
+        config["plugin"]["path"] = path
+        return config["plugin"]
 
     def run_plugins_setup(self):
         for name, plugin in self.plugins.items():

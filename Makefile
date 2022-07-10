@@ -23,7 +23,7 @@ install_service:
 install_open_desk_dash:
 	@echo "Install Service open_desk_dash"
 	mkdir -p $(INSTALL_PATH)
-	cp -R service/* $(INSTALL_PATH)
+	cp -R . $(INSTALL_PATH)
 	@systemctl restart $(SERVICE_FILE) || true
 
 uninstall: uninstall_deps uninstall_open_desk_dash uninstall_service
@@ -31,7 +31,7 @@ uninstall: uninstall_deps uninstall_open_desk_dash uninstall_service
 
 uninstall_deps:
 	@echo "Uninstall open_desk_dash dependencies"
-	@echo "FUck knows how"
+	@echo "Fuck knows how"
 
 uninstall_service:
 	@echo "Uninstall Service file"

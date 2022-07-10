@@ -27,19 +27,15 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
   - Entire Dash theme's overridable
 - Pages can have up and down rotation, manually rotated.
 - Dashes
-  -
   - Spotify dash (show playing, give basic buttons) - use wallpaper as background
 - All Dash popups
   - Regardless of what current dash is showing, enable toast pop-ups for emails, messages, etc
+- Easy install Script
 
 ### Plugins
 Plugins can be developed easily in Python using Flask, see the docs [here](Dev_plugin_guide.md)
-
 ```
 
 ### Alpha
-- Customizable streamdeck, 3x2 grid of custom buttons that call's API's
-    - Custom icons, text and API call
 - Self auto-update
 - find way to restart self
-- Easy install Script

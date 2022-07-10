@@ -14,6 +14,8 @@ def get_config_db() -> sqlite3.Connection:
 
 def gather_config_db() -> sqlite3.Connection:
     connection = None
+    if not os.path.exists(current_app.config["DATABASE_LOCATION"]):
+        os.mkdir(current_app.config["DATABASE_LOCATION"])
 
     if not os.path.exists(current_app.config["CONFIG_DB_LOCATION"]):
         connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])

@@ -12,7 +12,7 @@ def rss_dash():
     rss_feed = feedparser.parse(link)
     rss_feed = find_images(rss_feed)
     return render_template(
-        "rss_dash/rss_dash.html", feed=rss_feed.feed, items=rss_feed.entries[:10]
+        "rss_dash/rss_dash.html", feed=rss_feed.feed, items=rss_feed.entries[:5]
     )
 
 

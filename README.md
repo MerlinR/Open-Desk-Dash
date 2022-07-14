@@ -31,6 +31,7 @@ Designed to run on a Raspberry Pi with a screen attached (5", 7"), can support N
 - All Dash popups
   - Regardless of what current dash is showing, enable toast pop-ups for emails, messages, etc
 - Easy install Script
+- investigate ability to have pi also act as keyboard, for macro keys
 
 ### Plugins
 Plugins can be developed easily in Python using Flask, see the docs [here](Dev_plugin_guide.md)

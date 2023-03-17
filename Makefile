@@ -10,7 +10,7 @@ install: install_deps  install_open_desk_dash install_service
 
 install_deps:
 	@echo "Installing open_desk_dash dependencies"
-	python3 -m pip install -r requirements.txt
+	poetry install
 
 install_service:
 	@echo "Install Service file"
@@ -46,7 +46,7 @@ uninstall_open_desk_dash:
 	rm -rf $(INSTALL_PATH)
 
 run:
-	gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./open_desk_dash/ service:ODDash --log-level info
+	poetry run gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./open_desk_dash/ service:ODDash --log-level info
 
 # chromium-browser --start-fullscreen --start-maximized http:://localhost:56970
 

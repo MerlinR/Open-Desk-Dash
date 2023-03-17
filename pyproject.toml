@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "open-desk-dash"
+version = "0.1.0"
+description = ""
+authors = ["Merlin Roe <merlin.roe@hotmail.co.uk>"]
+readme = "README.md"
+packages = [{include = "open_desk_dash"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^2.2.3"
+gunicorn = "^20.1.0"
+toml = "^0.10.2"
+feedparser = "^6.0.10"
+requests = "^2.28.2"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

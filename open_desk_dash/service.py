@@ -14,7 +14,7 @@ ODDash = Flask(
 )
 ODDash.jinja_env.globals["plugin_config"] = plugin_config
 
-ODDash.config.from_object("configs.config.Config")
+ODDash.config.from_object("configs.Config")
 ODDash.register_blueprint(cfg_api)
 ODDash.config["def_plugins"] = [
     "default_dashboard",
@@ -25,7 +25,7 @@ ODDash.config["def_plugins"] = [
 
 with ODDash.app_context():
     setup_DB_control()
-    update_check()
+    # update_check()
     ODDash.config["plugins"] = PluginManager(ODDash, "plugins")
     ODDash.config["plugins"].register_plugins()
     ODDash.config["plugins"].update_plugin_check()
@@ -55,9 +55,7 @@ def fuzzy_index(srch: str, extra: str, within: list) -> int:
 @ODDash.route("/next", methods=["GET"])
 def next_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(
-        prev_page.path, prev_page.query, ODDash.config["config"]["pages"]
-    )
+    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"]["pages"])
     indx += 1
     if indx == len(ODDash.config["config"]["pages"]):
         indx = 0
@@ -67,9 +65,7 @@ def next_dash():
 @ODDash.route("/prev", methods=["GET"])
 def prev_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(
-        prev_page.path, prev_page.query, ODDash.config["config"]["pages"]
-    )
+    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"]["pages"])
     indx -= 1
     if indx < 0:
         indx = len(ODDash.config["config"]["pages"]) - 1

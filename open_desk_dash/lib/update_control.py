@@ -2,18 +2,26 @@ import os
 import shutil
 import sqlite3
 import tarfile
-import tempfile
 from datetime import datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Callable, Dict, List, Union
 
 import requests
+from flask import current_app
 from open_desk_dash.lib.db_control import get_config_db
 
 GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
 
 
 def update_check():
+    with current_app.app_context():
+        if current_app.config["EXPECTED_HOME"] not in os.path.realpath(__file__):
+            print(
+                f"Not running Installed version in {current_app.config['EXPECTED_HOME']}, therefore not checking for updates"
+            )
+            return
+
     connection = get_config_db()
     connection.row_factory = sqlite3.Row
     cur = connection.cursor()
@@ -25,10 +33,18 @@ def update_check():
 
     github_link = config["github"]
     release = version_check(github_link)
-    if release:
-        print(release)
-    else:
+
+    if not release:
         print("No Release")
+
+    with TemporaryDirectory() as temp_dir:
+        try:
+            response = requests.get(release["tarball_url"], stream=True)
+            with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
+                tar.extractall(path=temp_dir)
+        except Exception as e:
+            print(f"Failed to download latest release\n{e}")
+
     print(github_link)
 
 

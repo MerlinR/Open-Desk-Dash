@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 WorkingDirectory=/opt/opendeskdash
-ExecStart=gunicorn --workers 2 --bind 0.0.0.0:56970 --chdir /opt/opendeskdash/open_desk_dash service:ODDash
+ExecStart=poetry run gunicorn --workers 2 --bind 0.0.0.0:56970 --chdir /opt/opendeskdash/open_desk_dash service:ODDash
 KillMode=mixed
 Restart=always
 RestartSec=1

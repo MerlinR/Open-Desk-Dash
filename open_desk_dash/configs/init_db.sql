@@ -1,16 +1,15 @@
 DROP TABLE IF EXISTS config;
 DROP TABLE IF EXISTS plugins;
 
-CREATE TABLE config (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE ODDASH (
     transition INTEGER NOT NULL,
     pages TEXT NOT NULL,
-    autoUpdate INTEGER NOT NULL,
-    autoUpdatePlugins INTEGER NOT NULL,
+    auto_update INTEGER NOT NULL,
+    auto_update_plugins INTEGER NOT NULL,
     theme TEXT NOT NULL,
     github TEXT NOT NULL,
     version TEXT NOT NULL,
-    versionName TEXT NOT NULL,
+    version_name TEXT NOT NULL,
     installed TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -29,5 +28,5 @@ CREATE TABLE plugins (
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO config (transition, pages, autoUpdate, autoUpdatePlugins, theme, github, version, versionName)
+INSERT INTO ODDASH (transition, pages, auto_update, auto_update_plugins, theme, github, version, version_name)
 VALUES(30, "/default_dashboard/,/default_weather/,/rss_dash/", 1, 1, "default_dark", "https://github.com/MerlinR/Open-Desk-Dash", "0.1", "Alpha");

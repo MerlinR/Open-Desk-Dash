@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, redirect, render_template, request
 
-from open_desk_dash.lib.db_control import gather_config_db, get_config_db
+from open_desk_dash.lib.db_control import get_config_db, load_base_config
 from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
 
 cfg_api = Blueprint(
@@ -11,35 +11,38 @@ cfg_api = Blueprint(
 
 
 @cfg_api.route("/", methods=["GET", "POST"])
-def config():
+def update_config():
     rtn_msg = {"msg": "", "type": ""}
+    configs = {"page_order": []}
 
     if request.method == "POST":
         try:
-            transition_speed = request.form["transition"]
+            configs["transition_speed"] = request.form["transition"]
 
-            autoUpdate = False
             if request.form.get("autoUpdate"):
-                autoUpdate = True
+                configs["autoUpdate"] = True
 
-            autoUpdatePlugins = False
             if request.form.get("autoUpdatePlugins"):
-                autoUpdatePlugins = True
+                configs["autoUpdatePlugins"] = True
 
-            selected_pages = request.form.getlist("pages")
             selected_pages_vars = request.form.getlist("pages_vars")
-            page_order = []
-            for i, page in enumerate(selected_pages):
-                if selected_pages_vars[i]:
-                    page_order.append(f"{page}?{selected_pages_vars[i]}")
-                else:
-                    page_order.append(page)
-            connection = get_config_db()
 
+            for i, page in enumerate(request.form.getlist("pages")):
+                if selected_pages_vars[i]:
+                    configs["page_order"].append(f"{page}?{selected_pages_vars[i]}")
+                else:
+                    configs["page_order"].append(page)
+
+            connection = get_config_db()
             cur = connection.cursor()
             cur.execute(
-                "UPDATE config SET transition = ?, pages = ?, autoUpdate = ?, autoUpdatePlugins = ? WHERE id = 1 ",
-                (transition_speed, ",".join(page_order), autoUpdate, autoUpdatePlugins),
+                "UPDATE ODDASH SET transition = ?, pages = ?, autoUpdate = ?, autoUpdatePlugins = ? WHERE id = 1 ",
+                (
+                    configs["transition_speed"],
+                    ",".join(configs["page_order"]),
+                    configs["autoUpdate"],
+                    configs["autoUpdatePlugins"],
+                ),
             )
             connection.commit()
             rtn_msg = {"msg": "Saved", "type": "positive"}
@@ -48,12 +51,12 @@ def config():
             rtn_msg = {"msg": f"Failed to save config, {e}", "type": "error"}
             connection.rollback()
         finally:
-            gather_config_db()
+            load_base_config()
             connection.close()
 
-    pages = [page.split("?")[0] for page in current_app.config["config"]["pages"]]
+    pages = [page.split("?")[0] for page in current_app.config["config"].pages]
     page_vars = []
-    for page in current_app.config["config"]["pages"]:
+    for page in current_app.config["config"].pages:
         if "?" in page:
             page_vars.append(page.split("?")[-1])
         else:
@@ -94,9 +97,7 @@ def plugins():
                 print(f"Plugin Install failed {e}")
                 return render_template("plugins.html", msg=e, msg_type="error")
         else:
-            return render_template(
-                "plugins.html", msg="Github link Required", msg_type="info"
-            )
+            return render_template("plugins.html", msg="Github link Required", msg_type="info")
     return render_template("plugins.html")
 
 

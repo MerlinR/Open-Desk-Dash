@@ -7,9 +7,6 @@ def setup(app: Flask):
     with app.app_context():
         current_app.create_config(
             {
-                "location": str,
-            },
-            {
                 "location": "London",
             },
         )
@@ -35,6 +32,4 @@ def weather_config():
             print(f"Failed to save config, {e}")
             extra = {"msg": f"Failed, {e}", "type": "error"}
 
-    return render_template(
-        "default_weather/config.html", msg=extra["msg"], msg_type=extra["type"]
-    )
+    return render_template("default_weather/config.html", msg=extra["msg"], msg_type=extra["type"])

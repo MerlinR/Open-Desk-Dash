@@ -7,11 +7,6 @@ def setup(app: Flask):
     with app.app_context():
         current_app.create_config(
             {
-                "title": str,
-                "imageLink": str,
-                "textColor": str,
-            },
-            {
                 "title": "Open Desk Dash",
                 "imageLink": "https://giffiles.alphacoders.com/209/209343.gif",
                 "textColor": "#22262e",

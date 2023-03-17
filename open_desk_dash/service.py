@@ -35,12 +35,12 @@ with ODDash.app_context():
 
 @ODDash.route("/", methods=["GET"])
 def home():
-    return redirect(ODDash.config["config"]["pages"][0])
+    return redirect(ODDash.config["config"].pages[0])
 
 
 @ODDash.errorhandler(404)
 def page_not_found(e):
-    return redirect(ODDash.config["config"]["pages"][0])
+    return redirect(ODDash.config["config"].pages[0])
 
 
 def fuzzy_index(srch: str, extra: str, within: list) -> int:
@@ -55,18 +55,18 @@ def fuzzy_index(srch: str, extra: str, within: list) -> int:
 @ODDash.route("/next", methods=["GET"])
 def next_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"]["pages"])
+    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"].pages)
     indx += 1
-    if indx == len(ODDash.config["config"]["pages"]):
+    if indx == len(ODDash.config["config"].pages):
         indx = 0
-    return redirect(ODDash.config["config"]["pages"][indx])
+    return redirect(ODDash.config["config"].pages[indx])
 
 
 @ODDash.route("/prev", methods=["GET"])
 def prev_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"]["pages"])
+    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"].pages)
     indx -= 1
     if indx < 0:
-        indx = len(ODDash.config["config"]["pages"]) - 1
-    return redirect(ODDash.config["config"]["pages"][indx])
+        indx = len(ODDash.config["config"].pages) - 1
+    return redirect(ODDash.config["config"].pages[indx])

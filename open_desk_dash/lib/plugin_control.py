@@ -12,6 +12,7 @@ import pip
 import requests
 import toml
 from flask import Blueprint, Flask, current_app
+
 from open_desk_dash.lib.db_control import get_config_db
 from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
 from open_desk_dash.lib.plugin_utils import plugin_path
@@ -110,9 +111,7 @@ class PluginManager:
     def import_plugins(self):
         for name, plugin in self.plugins.items():
 
-            plugin_setup, plugin_blueprint = self.import_plugin_module(
-                name, plugin.path
-            )
+            plugin_setup, plugin_blueprint = self.import_plugin_module(name, plugin.path)
 
             if not plugin_blueprint:
                 print(f"Skipping {name} Due to no blueprint found")
@@ -123,9 +122,7 @@ class PluginManager:
             pages = [
                 str(p)
                 for p in self.app.url_map.iter_rules()
-                if plugin.name in str(p)
-                and "static" not in str(p)
-                and "config" not in str(p)
+                if plugin.name in str(p) and "static" not in str(p) and "config" not in str(p)
             ]
 
             for p in self.app.url_map.iter_rules():
@@ -135,9 +132,7 @@ class PluginManager:
             self.plugins[name].pages = pages
             self.plugins[name].setupFn = plugin_setup
 
-    def import_plugin_module(
-        self, module_name: str, path: str
-    ) -> Union[Callable, Blueprint]:
+    def import_plugin_module(self, module_name: str, path: str) -> Union[Callable, Blueprint]:
         path = path.replace("/", ".")
         module_file = path.split(".")[-1]
         try:
@@ -188,9 +183,7 @@ class PluginManager:
             existing = cur.fetchall()
 
             for plugin in existing:
-                self.plugins[plugin["name"]] = Plugin.from_dict(
-                    dict(zip(plugin.keys(), plugin))
-                )
+                self.plugins[plugin["name"]] = Plugin.from_dict(dict(zip(plugin.keys(), plugin)))
 
         except Exception as e:
             print("Failed to load plugin DB")
@@ -250,9 +243,7 @@ class PluginManager:
                 msg_type="info",
             )
 
-        print(
-            f"Installing {repoName} Version {release['tag_name']} - {release['name']}"
-        )
+        print(f"Installing {repoName} Version {release['tag_name']} - {release['name']}")
         try:
             response = requests.get(release["tarball_url"], stream=True)
             with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
@@ -324,9 +315,7 @@ class PluginManager:
                 raise e
         else:
             print("Plugin doesn't exist")
-            raise DeletionFailed(
-                msg="Plugin doesn't exist, failed to delete", msg_type="error"
-            )
+            raise DeletionFailed(msg="Plugin doesn't exist, failed to delete", msg_type="error")
 
     def plugin_api_check(self, author: str, repo: str):
         git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
@@ -359,15 +348,12 @@ class PluginManager:
                 print(f"Reached github API limit")
                 continue
 
-            if (
-                release["tag_name"] != plugin.tag
-                and self.app.config["config"]["autoUpdatePlugins"]
-            ):
+            if release["tag_name"] != plugin.tag and self.app.config["config"].auto_update_plugins:
                 print("Out of Date, Auto Updating")
                 self.update_plugin(plugin.name)
             elif (
                 release["tag_name"] != plugin.tag
-                and not self.app.config["config"]["autoUpdatePlugins"]
+                and not self.app.config["config"].auto_update_plugins
             ):
                 print("Out of Date, Plugin set to not Auto update")
                 plugin.latestTag = release["tag_name"]

@@ -5,7 +5,6 @@ from open_desk_dash.config import cfg_api
 from open_desk_dash.lib.db_control import setup_DB_control
 from open_desk_dash.lib.plugin_control import PluginManager
 from open_desk_dash.lib.plugin_utils import plugin_config
-from open_desk_dash.lib.update_control import update_check
 
 ODDash = Flask(
     "OpenDeskDash",
@@ -25,22 +24,22 @@ ODDash.config["def_plugins"] = [
 
 with ODDash.app_context():
     setup_DB_control()
-    # update_check()
+    ODDash.config["oddash"].update_check()
     ODDash.config["plugins"] = PluginManager(ODDash, "plugins")
     ODDash.config["plugins"].register_plugins()
-    ODDash.config["plugins"].update_plugin_check()
+    # ODDash.config["plugins"].update_plugin_check()
     ODDash.config["plugins"].import_plugins()
     ODDash.config["plugins"].run_plugins_setup()
 
 
 @ODDash.route("/", methods=["GET"])
 def home():
-    return redirect(ODDash.config["config"].pages[0])
+    return redirect(ODDash.config["oddash"].pages[0])
 
 
 @ODDash.errorhandler(404)
 def page_not_found(e):
-    return redirect(ODDash.config["config"].pages[0])
+    return redirect(ODDash.config["oddash"].pages[0])
 
 
 def fuzzy_index(srch: str, extra: str, within: list) -> int:
@@ -55,18 +54,14 @@ def fuzzy_index(srch: str, extra: str, within: list) -> int:
 @ODDash.route("/next", methods=["GET"])
 def next_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"].pages)
-    indx += 1
-    if indx == len(ODDash.config["config"].pages):
-        indx = 0
-    return redirect(ODDash.config["config"].pages[indx])
+    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["oddash"].pages)
+    indx = 0 if indx == len(ODDash.config["oddash"].pages) else indx + 1
+    return redirect(ODDash.config["oddash"].pages[indx])
 
 
 @ODDash.route("/prev", methods=["GET"])
 def prev_dash():
     prev_page = url_parse(request.referrer)
-    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["config"].pages)
-    indx -= 1
-    if indx < 0:
-        indx = len(ODDash.config["config"].pages) - 1
-    return redirect(ODDash.config["config"].pages[indx])
+    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["oddash"].pages)
+    indx = len(ODDash.config["oddash"].pages) - 1 if indx < 0 else indx - 1
+    return redirect(ODDash.config["oddash"].pages[indx])

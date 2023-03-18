@@ -5,7 +5,7 @@ import sqlite3
 
 from flask import current_app, request
 
-from .config import BaseConfig
+from .oddash import ODDash
 
 
 def get_config_db() -> sqlite3.Connection:
@@ -25,30 +25,6 @@ def gather_config():
     Will gather the plugin's Config into the global variables, automatically called when saving configs.
     """
     load_app_config(request.blueprint)
-
-
-def create_db(schema: str = ""):
-    calling_func = inspect.getouterframes(inspect.currentframe(), 2)[1][1]
-
-    try:
-        plugin_name = [
-            plugin.name
-            for plugin in current_app.config["plugins"].values()
-            if plugin.path in calling_func
-        ][0]
-    except IndexError:
-        print("No DB name to create")
-        return
-
-    db_path = os.path.join(current_app.config["DATABASE_LOCATION"], f"{plugin_name}_storage.db")
-
-    if os.path.exists(db_path):
-        print(f"{plugin_name} DB already exists... skipping")
-        return None
-
-    connection = sqlite3.connect(db_path)
-    connection.executescript(schema)
-    connection.close()
 
 
 def connect_db() -> sqlite3.Connection:
@@ -156,7 +132,7 @@ def load_base_config():
 
     cur.execute(f"SELECT * FROM ODDASH")
     row = cur.fetchone()
-    current_app.config["config"] = BaseConfig(**dict(zip(row.keys(), row)))
+    current_app.config["oddash"] = ODDash(**dict(zip(row.keys(), row)))
     connection.close()
 
 
@@ -176,6 +152,5 @@ def setup_DB_control():
     current_app.create_config = create_config
     current_app.gather_config = gather_config
     current_app.save_config = save_config
-    current_app.create_db = create_db
     current_app.connect_db = connect_db
     gather_app_configs()

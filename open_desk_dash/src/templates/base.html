@@ -9,13 +9,13 @@
     <link
       rel="stylesheet"
       href="{{ url_for('static',
-    filename='css/')}}{{config.config.theme}}.css"
+    filename='css/')}}{{config.oddash.theme}}.css"
     />
     <script src={{ url_for('static', filename='js/control.js') }}></script>
     <script src={{ url_for('static', filename='js/extra.js') }}></script>
     <script>
-     if ({{config.config.transition}} != 0){
-        setTimeout(autoTransition, {{config.config.transition}} * 1000);
+     if ({{config.oddash.transition}} != 0){
+        setTimeout(autoTransition, {{config.oddash.transition}} * 1000);
       }
     </script>
   </head>

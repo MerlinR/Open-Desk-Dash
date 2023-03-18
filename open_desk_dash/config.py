@@ -54,9 +54,9 @@ def update_config():
             load_base_config()
             connection.close()
 
-    pages = [page.split("?")[0] for page in current_app.config["config"].pages]
+    pages = [page.split("?")[0] for page in current_app.config["oddash"].pages]
     page_vars = []
-    for page in current_app.config["config"].pages:
+    for page in current_app.config["oddash"].pages:
         if "?" in page:
             page_vars.append(page.split("?")[-1])
         else:

@@ -77,6 +77,7 @@ class PluginManager:
     def __init__(self, app: Flask, plugins_dir=str):
         self.app = app
         self.plugins_dir = plugins_dir
+        self.def_plugins_dir = "plugins"
         self.plugins: Dict[str, Plugin] = {}
         self.load_plugins_from_DB()
         self.remove_missing_plugins()
@@ -88,11 +89,17 @@ class PluginManager:
 
     def find_local_plugins(self) -> Dict[str, str]:
         plugins = {}
-        for direct in os.listdir(self.plugins_dir):
-            full_path = os.path.join(self.plugins_dir, direct)
-            if os.path.isdir(full_path):
-                for file in Path(full_path).rglob("registry.toml"):
-                    plugins[direct] = os.path.dirname(file)
+
+        for name in os.listdir(self.plugins_dir):
+            full_path = os.path.join(self.plugins_dir, name, "registry.toml")
+            if os.path.exists(full_path):
+                plugins[name] = os.path.dirname(full_path)
+
+        for name in os.listdir(self.def_plugins_dir):
+            full_path = os.path.join(self.def_plugins_dir, name, "registry.toml")
+            if os.path.exists(full_path):
+                plugins[name] = os.path.dirname(full_path)
+
         return plugins
 
     def register_plugins(self):

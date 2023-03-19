@@ -25,7 +25,7 @@ ODDash.config["def_plugins"] = [
 with ODDash.app_context():
     setup_DB_control()
     ODDash.config["oddash"].update_check()
-    ODDash.config["plugins"] = PluginManager(ODDash, "plugins")
+    ODDash.config["plugins"] = PluginManager(ODDash, "ext_plugins")
     ODDash.config["plugins"].run_plugins_setup()
 
 

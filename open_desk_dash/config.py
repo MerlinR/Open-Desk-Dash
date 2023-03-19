@@ -13,17 +13,17 @@ cfg_api = Blueprint(
 @cfg_api.route("/", methods=["GET", "POST"])
 def update_config():
     rtn_msg = {"msg": "", "type": ""}
-    configs = {"page_order": []}
+    configs = {"page_order": [], "auto_update": False, "auto_update_plugins": False}
 
     if request.method == "POST":
         try:
             configs["transition_speed"] = request.form["transition"]
 
             if request.form.get("autoUpdate"):
-                configs["autoUpdate"] = True
+                configs["auto_update"] = True
 
             if request.form.get("autoUpdatePlugins"):
-                configs["autoUpdatePlugins"] = True
+                configs["auto_update_plugins"] = True
 
             selected_pages_vars = request.form.getlist("pages_vars")
 
@@ -36,12 +36,12 @@ def update_config():
             connection = get_config_db()
             cur = connection.cursor()
             cur.execute(
-                "UPDATE ODDASH SET transition = ?, pages = ?, autoUpdate = ?, autoUpdatePlugins = ? WHERE id = 1 ",
+                "UPDATE ODDASH SET transition = ?, pages = ?, auto_update = ?, auto_update_plugins = ? WHERE id = 1 ",
                 (
                     configs["transition_speed"],
                     ",".join(configs["page_order"]),
-                    configs["autoUpdate"],
-                    configs["autoUpdatePlugins"],
+                    configs["auto_update"],
+                    configs["auto_update_plugins"],
                 ),
             )
             connection.commit()

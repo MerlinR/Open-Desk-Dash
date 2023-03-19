@@ -2,13 +2,13 @@ import importlib
 import os
 import shutil
 import sqlite3
+import subprocess
 import tarfile
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Union
 
-import pip
 import requests
 import toml
 from flask import Blueprint, Flask, current_app
@@ -66,7 +66,7 @@ class Plugin:
             )
             connection.commit()
         except Exception as e:
-            print(f"Failed to save plugin registry\n{e}")
+            print(f"Failed to save plugin registry: {e}")
             connection.rollback()
             raise e
         finally:
@@ -79,7 +79,12 @@ class PluginManager:
         self.plugins_dir = plugins_dir
         self.plugins: Dict[str, Plugin] = {}
         self.load_plugins_from_DB()
+        self.remove_missing_plugins()
         self.app.plugin_path = plugin_path
+
+        self.register_plugins()
+        # self.update_plugin_check()
+        self.import_plugins()
 
     def find_local_plugins(self) -> Dict[str, str]:
         plugins = {}
@@ -89,11 +94,6 @@ class PluginManager:
                 for file in Path(full_path).rglob("registry.toml"):
                     plugins[direct] = os.path.dirname(file)
         return plugins
-
-    def find_plugin_root_dir(self, name: str) -> str:
-        for direct in os.listdir(self.plugins_dir):
-            if direct == name:
-                return os.path.join(self.plugins_dir, direct)
 
     def register_plugins(self):
         for name, path in self.find_local_plugins().items():
@@ -106,12 +106,11 @@ class PluginManager:
                 try:
                     self.plugins[registry["name"]].save_to_db()
                 except Exception as e:
-                    print(f"Failed to register plugin due to..\n{e}")
+                    print(f"Failed to register plugin due to: {e}")
 
     def import_plugins(self):
         for name, plugin in self.plugins.items():
-
-            plugin_setup, plugin_blueprint = self.import_plugin_module(name, plugin.path)
+            plugin_blueprint, plugin_setup = self.import_plugin_module(name, plugin.path)
 
             if not plugin_blueprint:
                 print(f"Skipping {name} Due to no blueprint found")
@@ -132,16 +131,12 @@ class PluginManager:
             self.plugins[name].pages = pages
             self.plugins[name].setupFn = plugin_setup
 
-    def import_plugin_module(self, module_name: str, path: str) -> Union[Callable, Blueprint]:
+    def import_plugin_module(self, module_name: str, path: str) -> Union[Blueprint, Callable]:
         path = path.replace("/", ".")
         module_file = path.split(".")[-1]
+
         try:
             plugin_blueprint = importlib.import_module(f".{module_file}", path).api
-            try:
-                plugin_setup = importlib.import_module(f".{module_file}", path).setup
-            except AttributeError:
-                print(f"{module_name} has no setup function")
-                plugin_setup = None
             plugin_blueprint.name = module_name
             plugin_blueprint.static_folder = "./src/static"
             plugin_blueprint.template_folder = "./src"
@@ -149,9 +144,15 @@ class PluginManager:
         except ModuleNotFoundError as e:
             print(f"Failed to import {module_name}")
             print(e)
-            return None
+            return None, None
 
-        return plugin_setup, plugin_blueprint
+        try:
+            plugin_setup = importlib.import_module(f".{module_file}", path).setup
+        except AttributeError:
+            print(f"{module_name} has no setup function")
+            plugin_setup = None
+
+        return plugin_blueprint, plugin_setup
 
     def get_plugin_registry(self, name: str, path: str) -> dict:
         registry = os.path.join(path, "registry.toml")
@@ -160,8 +161,7 @@ class PluginManager:
             return None
 
         config = toml.load(registry)
-        config["plugin"]["name"] = name
-        config["plugin"]["path"] = path
+        config["plugin"].update({"name": name, "path": path})
         return config["plugin"]
 
     def run_plugins_setup(self):
@@ -170,8 +170,7 @@ class PluginManager:
                 try:
                     plugin.setupFn(self.app)
                 except Exception as e:
-                    print(f"[{name}] Failed to run setup due to:")
-                    print(e)
+                    print(f"[{name}] Failed to run setup due to: {e}")
 
     def load_plugins_from_DB(self):
         try:
@@ -191,122 +190,144 @@ class PluginManager:
         finally:
             connection.close()
 
-    # def find_plugin_registry(self, repo: str) -> str:
-    #     for file in Path(repo).rglob("registry.toml"):
-    #         return file.as_posix()
+    def remove_missing_plugins(self):
+        try:
+            connection = get_config_db()
+            connection.row_factory = sqlite3.Row
+            cur = connection.cursor()
+            cur.execute("SELECT * FROM plugins")
 
-    # def find_plugin_requirements(self, repo: str) -> str:
-    #     for file in Path(repo).rglob("requirements.txt"):
-    #         return file.as_posix()
+            for row in cur.fetchall():
+                if not os.path.exists(row["path"]):
+                    print(f"Module {row['name']} Missing... Deleting SQL record")
+                    sql = f"DELETE FROM plugins WHERE name = '{row['name']}';"
+                    cur.execute(sql)
+                    connection.commit()
+                    self.plugins.pop(row["name"], None)
 
-    # def plugin_install(self, link: str):
-    #     tmp_repo_path = os.path.join(self.plugins_dir, "new_plugin")
-    #     accountName = link.split("/")[-2]
-    #     repoName = link.split("/")[-1]
+        except Exception as e:
+            print("Failed to load plugin DB")
+            print(e)
+        finally:
+            connection.close()
 
-    #     release = self.plugin_api_check(accountName, repoName)
+    def plugin_install(self, link: str):
+        author = link.split("/")[-2]
+        repoName = link.split("/")[-1]
+        repo_path = os.path.join(self.plugins_dir, "new_plugin")
+        release = self.plugin_api_check(author, repoName)
 
-    #     if not release:
-    #         print(f"No release found in Repo")
-    #         raise InstallFailed(
-    #             "Cannot find release info, ensure public github link with a release.",
-    #             msg_type="info",
-    #         )
-    #     elif release.get("message"):
-    #         print(f"Github API limit")
-    #         raise InstallFailed(
-    #             release.get("message"),
-    #             msg_type="info",
-    #         )
+        if not release:
+            print(f"No release found in Repo")
+            raise InstallFailed(
+                "Cannot find release info, ensure public github link with a release.",
+                msg_type="info",
+            )
+        elif release.get("message"):
+            print(f"Github API limit...")
+            raise InstallFailed(
+                release.get("message"),
+                msg_type="info",
+            )
 
-    #     print(f"Installing {repoName} Version {release['tag_name']} - {release['name']}")
-    #     try:
-    #         response = requests.get(release["tarball_url"], stream=True)
-    #         with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
-    #             tar.extractall(path=tmp_repo_path)
-    #     except Exception as e:
-    #         print(f"Failed to download release\n{e}")
-    #         raise InstallFailed(str(e))
+        print(f"Installing {repoName} Version {release['tag_name']} - {release['name']}")
 
-    #     registry_path = os.path.dirname(self.find_plugin_registry(tmp_repo_path))
+        self.unpack_plugin(release["tarball_url"], repo_path)
 
-    #     if not registry_path:
-    #         print("Failed to Install, cancelling")
-    #         shutil.rmtree(tmp_repo_path)
-    #         raise InstallFailed("Plugin is missing registry toml file, cannot install.")
+        registry_path = os.path.dirname(self.find_plugin_registry(repo_path))
+        pluginName = os.path.basename(registry_path)
 
-    #     pluginName = os.path.basename(registry_path)
+        if not registry_path:
+            print("Failed to find registry file, cancelling...")
+            shutil.rmtree(repo_path)
+            raise InstallFailed("Plugin is missing registry toml file, cannot install.")
 
-    #     new_plugin_path = os.path.join(self.plugins_dir, f"{accountName}_{pluginName}")
+        plugin_path = os.path.join(self.plugins_dir, f"{author}_{pluginName}")
 
-    #     if os.path.exists(new_plugin_path):
-    #         print("Plugin Already exists, skipping")
-    #         shutil.rmtree(tmp_repo_path)
-    #         raise InstallFailed(
-    #             "Plugin already installed, restart to view or manually delete and retry.",
-    #             msg_type="info",
-    #         )
+        if os.path.exists(plugin_path):
+            print("Plugin Already exists, skipping...")
+            shutil.rmtree(repo_path)
+            raise InstallFailed(
+                "Plugin already installed, restart to view or manually delete and retry.",
+                msg_type="info",
+            )
+        else:
+            os.rename(repo_path, plugin_path)
 
-    #     os.rename(tmp_repo_path, new_plugin_path)
+        registry = self.get_plugin_registry(
+            f"{author}_{pluginName}",
+            os.path.dirname(self.find_plugin_registry(plugin_path)),
+        )
 
-    #     registry = self.get_plugin_registry(
-    #         f"{accountName}_{pluginName}",
-    #         os.path.dirname(self.find_plugin_registry(new_plugin_path)),
-    #     )
+        registry["tag"] = release["tag_name"]
+        registry["tagName"] = release["name"]
 
-    #     registry["tag"] = release["tag_name"]
-    #     registry["tagName"] = release["name"]
+        self.plugins[registry["name"]] = Plugin.from_dict(registry)
 
-    #     self.plugins[registry["name"]] = Plugin.from_dict(registry)
-    #     try:
-    #         self.plugins[registry["name"]].save_to_db()
-    #     except Exception as e:
-    #         raise InstallFailed(str(e))
+        try:
+            self.plugins[registry["name"]].save_to_db()
+        except Exception as e:
+            raise InstallFailed(str(e))
 
-    #     requirements_file = self.find_plugin_requirements(new_plugin_path)
-    #     if requirements_file:
-    #         try:
-    #             self.plugin_requirements_install(requirements_file)
-    #         except Exception as e:
-    #             print(f"Failed to install plugin requirements\n{e}")
-    #             raise InstallFailed(f"Failed to install plugin requirements\n{e}")
+        requirements_file = self.find_plugin_requirements(plugin_path)
+        if requirements_file:
+            try:
+                self.plugin_requirements_install(requirements_file)
+            except Exception as e:
+                print(f"Failed to install plugin requirements\n{e}")
+                raise InstallFailed(f"Failed to install plugin requirements\n{e}")
 
-    # def plugin_requirements_install(self, req_path: str):
-    #     with open(req_path, "r") as req_file:
-    #         for line in req_file:
-    #             package = line.strip()
-    #             print(f"Installing {package}")
-    #             if hasattr(pip, "main"):
-    #                 pip.main(["install", package])
-    #             else:
-    #                 pip._internal.main(["install", package])
+    def plugin_api_check(self, author: str, repo: str) -> dict:
+        git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
 
-    # def plugin_delete(self, name: str):
-    #     path = self.find_plugin_root_dir(name)
-    #     if path and os.path.exists(path):
-    #         print("Plugin exists, Deleting")
-    #         try:
-    #             shutil.rmtree(path)
-    #         except Exception as e:
-    #             raise e
-    #     else:
-    #         print("Plugin doesn't exist")
-    #         raise DeletionFailed(msg="Plugin doesn't exist, failed to delete", msg_type="error")
+        try:
+            response = requests.get(git_api_link)
+        except requests.exceptions.ConnectionError:
+            raise InstallFailed(
+                "Failed to connect to Github.",
+                msg_type="info",
+            )
 
-    # def plugin_api_check(self, author: str, repo: str):
-    #     git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
+        if response.status_code == 403:
+            return response.json()
+        elif response.status_code != 200:
+            return {}
+        return response.json()
 
-    #     try:
-    #         response = requests.get(git_api_link)
-    #     except requests.exceptions.ConnectionError:
-    #         print("No internet")
-    #         return None
+    def unpack_plugin(self, url: str, path: str):
+        try:
+            response = requests.get(url, stream=True)
+            with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
+                tar.extractall(path=path)
+        except Exception as e:
+            print(f"Failed to download release: {e}")
+            raise InstallFailed(str(e))
 
-    #     if response.status_code == 403:
-    #         return response.json()
-    #     elif response.status_code != 200:
-    #         return None
-    #     return response.json()
+    def find_plugin_registry(self, repo: str) -> str:
+        for file in Path(repo).rglob("registry.toml"):
+            return file.as_posix()
+
+    def find_plugin_requirements(self, repo: str) -> str:
+        for file in Path(repo).rglob("requirements.txt"):
+            return file.as_posix()
+
+    def plugin_requirements_install(self, req_path: str):
+        with open(req_path, "r") as req_file:
+            data = req_file.read().replace("\n", " ")
+            print(f"Installing: {data}")
+            subprocess.run(["poetry", "add", *data.split()])
+
+    def plugin_delete(self, name: str):
+        path = os.path.join(self.plugins_dir, name)
+        if os.path.exists(path):
+            print("Plugin exists, Deleting")
+            try:
+                shutil.rmtree(path)
+            except Exception as e:
+                raise e
+        else:
+            print(f"Plugin doesn't exist: {path}")
+            raise DeletionFailed(msg="Plugin doesn't exist, failed to delete", msg_type="error")
 
     # def update_plugin_check(self):
     #     for name, plugin in self.plugins.items():
@@ -317,6 +338,7 @@ class PluginManager:
     #         repoName = plugin.github.split("/")[-1]
 
     #         release = self.plugin_api_check(accountName, repoName)
+
     #         if not release:
     #             print(f"{name} has no releases")
     #             continue

@@ -132,7 +132,9 @@ def load_base_config():
 
     cur.execute(f"SELECT * FROM ODDASH")
     row = cur.fetchone()
-    current_app.config["oddash"] = ODDash(**dict(zip(row.keys(), row)))
+    data = dict(zip(row.keys(), row))
+    data.pop("id")
+    current_app.config["oddash"] = ODDash(**data)
     connection.close()
 
 

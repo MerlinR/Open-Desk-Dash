@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS config;
 DROP TABLE IF EXISTS plugins;
 
 CREATE TABLE ODDASH (
+    id INTEGER PRIMARY KEY,
     transition INTEGER NOT NULL,
     pages TEXT NOT NULL,
     auto_update INTEGER NOT NULL,

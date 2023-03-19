@@ -9,7 +9,7 @@ body %}
 <form action="/config" method="POST">
   <div style="display: table-row">
     <label for="page_order" class="switch">Auto Update: </label>
-    {% if config.oddash.autoUpdate %}
+    {% if config.oddash.auto_update %}
     <input type="checkbox" name="autoUpdate" checked />
     {% else %}
     <input type="checkbox" name="autoUpdate" />
@@ -18,7 +18,7 @@ body %}
 
   <div style="display: table-row">
     <label for="page_order">Auto Update Plugins: </label>
-    {% if config.oddash.autoUpdatePlugins %}
+    {% if config.oddash.auto_update_plugins %}
     <input type="checkbox" name="autoUpdatePlugins" checked />
     {% else %}
     <input type="checkbox" name="autoUpdatePlugins" />

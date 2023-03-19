@@ -24,7 +24,7 @@ ODDash.config["def_plugins"] = [
 
 with ODDash.app_context():
     setup_DB_control()
-    # ODDash.config["oddash"].update_check()
+    ODDash.config["oddash"].update_check()
     ODDash.config["plugins"] = PluginManager(ODDash, "plugins")
     ODDash.config["plugins"].run_plugins_setup()
 
@@ -48,23 +48,24 @@ def fuzzy_index(srch: str, extra: str, within: list) -> int:
     return 0
 
 
-@ODDash.route("/next", methods=["GET"])
-def next_dash():
+def find_next_page(request, forward: bool) -> str:
     try:
         prev_page = url_parse(request.referrer)
     except AttributeError:
         return redirect(ODDash.config["oddash"].pages[0])
     indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["oddash"].pages)
-    indx = 0 if indx == len(ODDash.config["oddash"].pages) - 1 else indx + 1
-    return redirect(ODDash.config["oddash"].pages[indx])
+    if forward:
+        indx = 0 if indx == len(ODDash.config["oddash"].pages) - 1 else indx + 1
+    else:
+        indx = len(ODDash.config["oddash"].pages) - 1 if indx < 0 else indx - 1
+    return ODDash.config["oddash"].pages[indx]
+
+
+@ODDash.route("/next", methods=["GET"])
+def next_dash():
+    return redirect(find_next_page(request, True))
 
 
 @ODDash.route("/prev", methods=["GET"])
 def prev_dash():
-    try:
-        prev_page = url_parse(request.referrer)
-    except AttributeError:
-        return redirect(ODDash.config["oddash"].pages[0])
-    indx = fuzzy_index(prev_page.path, prev_page.query, ODDash.config["oddash"].pages)
-    indx = len(ODDash.config["oddash"].pages) - 1 if indx < 0 else indx - 1
-    return redirect(ODDash.config["oddash"].pages[indx])
+    return redirect(find_next_page(request, False))

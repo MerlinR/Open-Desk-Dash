@@ -83,7 +83,7 @@ class PluginManager:
         self.app.plugin_path = plugin_path
 
         self.register_plugins()
-        # self.update_plugin_check()
+        self.update_plugin_check()
         self.import_plugins()
 
     def find_local_plugins(self) -> Dict[str, str]:
@@ -329,40 +329,37 @@ class PluginManager:
             print(f"Plugin doesn't exist: {path}")
             raise DeletionFailed(msg="Plugin doesn't exist, failed to delete", msg_type="error")
 
-    # def update_plugin_check(self):
-    #     for name, plugin in self.plugins.items():
-    #         if name in self.app.config["def_plugins"]:
-    #             continue
-    #         print(f"Checking {name} for updates")
-    #         accountName = plugin.github.split("/")[-2]
-    #         repoName = plugin.github.split("/")[-1]
+    def update_plugin_check(self):
+        if not self.app.config["oddash"].auto_update_plugins:
+            print("auto_update_plugins set to false, not updating plugins")
+            return
 
-    #         release = self.plugin_api_check(accountName, repoName)
+        for name, plugin in self.plugins.items():
+            if name in self.app.config["def_plugins"]:
+                continue
 
-    #         if not release:
-    #             print(f"{name} has no releases")
-    #             continue
-    #         elif release.get("message"):
-    #             print(f"Reached github API limit")
-    #             continue
+            print(f"Checking {name} for updates")
+            accountName = plugin.github.split("/")[-2]
+            repoName = plugin.github.split("/")[-1]
 
-    #         if release["tag_name"] != plugin.tag and self.app.config["oddash"].auto_update_plugins:
-    #             print("Out of Date, Auto Updating")
-    #             self.update_plugin(plugin.name)
-    #         elif (
-    #             release["tag_name"] != plugin.tag
-    #             and not self.app.config["oddash"].auto_update_plugins
-    #         ):
-    #             print("Out of Date, Plugin set to not Auto update")
-    #             plugin.latestTag = release["tag_name"]
-    #             plugin.latestTagName = release["name"]
-    #         else:
-    #             print(f"{name} is up to date")
+            release = self.plugin_api_check(accountName, repoName)
 
-    # def update_plugin(self, plugin_name: str):
-    #     plugin = self.plugins[plugin_name]
-    #     self.plugin_delete(plugin.name)
-    #     self.plugin_install(plugin.github)
+            if not release:
+                print(f"{name} has no releases")
+                continue
+            elif release.get("message"):
+                print(f"Reached github API limit")
+                continue
+            elif release["tag_name"] != plugin.tag:
+                print("Out of Date, Auto Updating")
+                self.update_plugin(plugin.name)
+
+            print(f"{name} is up to date")
+
+    def update_plugin(self, plugin_name: str):
+        plugin = self.plugins[plugin_name]
+        self.plugin_delete(plugin.name)
+        self.plugin_install(plugin.github)
 
     def __setitem__(self, key, item):
         self.plugins[key] = item

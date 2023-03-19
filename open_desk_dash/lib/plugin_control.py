@@ -284,6 +284,9 @@ class PluginManager:
                 print(f"Failed to install plugin requirements\n{e}")
                 raise InstallFailed(f"Failed to install plugin requirements\n{e}")
 
+        if current_app.config["EXPECTED_HOME"] not in os.path.realpath(__file__):
+            subprocess.call(["systemctl", "restart", current_app.config["SERVICE_NAME"]])
+
     def plugin_api_check(self, author: str, repo: str) -> dict:
         git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
 

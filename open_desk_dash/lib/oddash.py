@@ -1,6 +1,7 @@
 import os
-import shutil
 import sqlite3
+import subprocess
+import sys
 import tarfile
 from dataclasses import dataclass
 from datetime import datetime
@@ -65,8 +66,20 @@ class ODDash:
                 response = requests.get(release["tarball_url"], stream=True)
                 with tarfile.open(fileobj=response.raw, mode=f"r|gz") as tar:
                     tar.extractall(path=temp_dir)
+                subprocess.run(
+                    [
+                        "cp",
+                        "-r",
+                        "-f",
+                        os.path.join(temp_dir, os.listdir(temp_dir)[0], "open_desk_dash"),
+                        current_app.config["EXPECTED_HOME"],
+                    ]
+                )
+
             except Exception as e:
                 print(f"Failed to download latest release\n{e}")
+
+        subprocess.call(["systemctl", "restart", current_app.config["SERVICE_NAME"]])
 
         print(config["github"])
 

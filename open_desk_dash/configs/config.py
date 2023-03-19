@@ -8,6 +8,7 @@ class Config(object):
     CONFIG_DB_LOCATION = "dbs/config_storage.db"
     INIT_SCHEMA = "./configs/init_db.sql"
     EXPECTED_HOME = "/opt/opendeskdash/"
+    SERVICE_NAME = "opendeskdash.service"
 
 
 class ProductionConfig(Config):

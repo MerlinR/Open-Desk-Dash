@@ -2,7 +2,7 @@ from flask import Flask, redirect, request
 from werkzeug.urls import url_parse
 
 from open_desk_dash.config import cfg_api
-from open_desk_dash.lib.db_control import setup_DB_control
+from open_desk_dash.lib.db_controls import setup_DB_control
 from open_desk_dash.lib.plugin_control import PluginManager
 from open_desk_dash.lib.plugin_utils import plugin_config
 

@@ -13,8 +13,9 @@ import requests
 import toml
 from flask import Blueprint, Flask, current_app
 
-from open_desk_dash.lib.db_control import get_config_db
+from open_desk_dash.lib.db_controls import get_config_db
 from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
+from open_desk_dash.lib.misc import restart_oddash
 from open_desk_dash.lib.plugin_utils import plugin_path
 
 GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
@@ -105,6 +106,7 @@ class PluginManager:
     def register_plugins(self):
         for name, path in self.find_local_plugins().items():
             registry = self.get_plugin_registry(name, path)
+
             if not registry:
                 print(f"Unknown {name} Plugin has no registry File. Skipping")
                 continue
@@ -222,7 +224,7 @@ class PluginManager:
         author = link.split("/")[-2]
         repoName = link.split("/")[-1]
         repo_path = os.path.join(self.plugins_dir, "new_plugin")
-        release = self.plugin_api_check(author, repoName)
+        release = self.get_release(link)
 
         if not release:
             print(f"No release found in Repo")
@@ -284,11 +286,12 @@ class PluginManager:
                 print(f"Failed to install plugin requirements\n{e}")
                 raise InstallFailed(f"Failed to install plugin requirements\n{e}")
 
-        if current_app.config["EXPECTED_HOME"] not in os.path.realpath(__file__):
-            subprocess.call(["systemctl", "restart", current_app.config["SERVICE_NAME"]])
+        restart_oddash()
 
-    def plugin_api_check(self, author: str, repo: str) -> dict:
-        git_api_link = GIT_RELEASE_PATH.format(author=author, repo=repo)
+    def get_release(self, link: str) -> dict:
+        accountName = link.split("/")[-2]
+        repoName = link.split("/")[-1]
+        git_api_link = GIT_RELEASE_PATH.format(author=accountName, repo=repoName)
 
         try:
             response = requests.get(git_api_link)
@@ -349,10 +352,8 @@ class PluginManager:
                 continue
 
             print(f"Checking {name} for updates")
-            accountName = plugin.github.split("/")[-2]
-            repoName = plugin.github.split("/")[-1]
 
-            release = self.plugin_api_check(accountName, repoName)
+            release = self.get_release(plugin.github)
 
             if not release:
                 print(f"{name} has no releases")
@@ -371,32 +372,8 @@ class PluginManager:
         self.plugin_delete(plugin.name)
         self.plugin_install(plugin.github)
 
-    def __setitem__(self, key, item):
-        self.plugins[key] = item
-
-    def __getitem__(self, key):
-        return self.plugins[key]
-
-    def __repr__(self):
-        return repr(self.plugins)
-
-    def __len__(self):
-        return len(self.plugins)
-
-    def __delitem__(self, key):
-        del self.plugins[key]
-
-    def clear(self):
-        return self.plugins.clear()
-
-    def copy(self):
-        return self.plugins.copy()
-
     def has_key(self, k):
         return k in self.plugins
-
-    def update(self, *args, **kwargs):
-        return self.plugins.update(*args, **kwargs)
 
     def keys(self):
         return self.plugins.keys()
@@ -406,6 +383,3 @@ class PluginManager:
 
     def items(self):
         return self.plugins.items()
-
-    def pop(self, *args):
-        return self.plugins.pop(*args)

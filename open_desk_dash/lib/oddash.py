@@ -10,6 +10,8 @@ from tempfile import TemporaryDirectory
 import requests
 from flask import current_app
 
+from open_desk_dash.lib.misc import restart_oddash
+
 GIT_RELEASE_PATH = "https://api.github.com/repos/{author}/{repo}/releases/latest"
 
 
@@ -79,11 +81,9 @@ class ODDash:
             except Exception as e:
                 print(f"Failed to download latest release\n{e}")
 
-        subprocess.call(["systemctl", "restart", current_app.config["SERVICE_NAME"]])
+        restart_oddash()
 
-        print(config["github"])
-
-    def get_release(self, link: str):
+    def get_release(self, link: str) -> dict:
         accountName = link.split("/")[-2]
         repoName = link.split("/")[-1]
         git_api_link = GIT_RELEASE_PATH.format(author=accountName, repo=repoName)
@@ -92,7 +92,10 @@ class ODDash:
             response = requests.get(git_api_link)
         except requests.exceptions.ConnectionError:
             print("No internet")
-            return None
-        if response.status_code != 200:
-            return None
+            return {}
+
+        if response.status_code == 403:
+            return response.json()
+        elif response.status_code != 200:
+            return {}
         return response.json()

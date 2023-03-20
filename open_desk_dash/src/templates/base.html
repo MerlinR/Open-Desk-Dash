@@ -8,8 +8,7 @@
     <link rel="stylesheet" href={{ url_for('static', filename='css/styles.css')}}>
     <link
       rel="stylesheet"
-      href="{{ url_for('static',
-    filename='css/')}}{{config.oddash.theme}}.css"
+      href="{{ url_for('static', filename='css/')}}{{config.oddash.theme}}.css"
     />
     <script src={{ url_for('static', filename='js/control.js') }}></script>
     <script src={{ url_for('static', filename='js/extra.js') }}></script>
@@ -19,6 +18,9 @@
       }
     </script>
   </head>
+
+  {% block setup %}{% endblock %}
+
   <body class="contain" id="fadein">
     {% block body %}{% endblock %}
   </body>

@@ -116,14 +116,20 @@ def save_config(configs: dict):
     load_app_config(plugin_name)
 
 
-def load_base_config():
-    connection = None
+def create_base_config():
     if not os.path.exists(current_app.config["DATABASE_LOCATION"]):
         os.mkdir(current_app.config["DATABASE_LOCATION"])
 
+    connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
+    connection.executescript(read_schema())
+    connection.close()
+
+
+def load_base_config():
+    connection = None
+
     if not os.path.exists(current_app.config["CONFIG_DB_LOCATION"]):
-        connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
-        connection.executescript(read_schema())
+        create_base_config()
     else:
         connection = sqlite3.connect(current_app.config["CONFIG_DB_LOCATION"])
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, redirect, render_template, request
 
-from open_desk_dash.lib.db_control import get_config_db, load_base_config
+from open_desk_dash.lib.db_controls import get_config_db, load_base_config
 from open_desk_dash.lib.exceptions import DeletionFailed, InstallFailed
 
 cfg_api = Blueprint(

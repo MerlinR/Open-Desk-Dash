@@ -170,6 +170,10 @@ class PluginManager:
             return None
 
         config = toml.load(registry)
+
+        if "title" not in config.get("plugin", {}).keys():
+            return None
+
         config["plugin"].update({"name": name, "path": path})
         return config["plugin"]
 

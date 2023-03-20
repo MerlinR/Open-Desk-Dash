@@ -1,6 +1,6 @@
-[plugin]
-title = "Default Weather"
-description = "The Defualt Weather that is pre-installed within Open Desk Dash. Powered by https://weatherdbi.herokuapp.com"
-author = "Default"
-github = "https://github.com/MerlinR/Open-Desk-Dash"
-version = "1.0"
+# [plugin]
+# title = "Default Weather"
+# description = "The Defualt Weather that is pre-installed within Open Desk Dash. Powered by https://weatherdbi.herokuapp.com"
+# author = "Default"
+# github = "https://github.com/MerlinR/Open-Desk-Dash"
+# version = "1.0"

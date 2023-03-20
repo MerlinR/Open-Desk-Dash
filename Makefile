@@ -4,21 +4,17 @@ SYSTEMD_DIR=/etc/systemd/system
 SYSTEMD_LIB_DIR=/lib/systemd/system/
 
 .PHONY: install
+.ONESHELL :
 
 install: install_deps  install_open_desk_dash install_service
 	@echo "Installed Desktop Service"
 
 install_deps:
 	@echo "Installing open_desk_dash dependencies"
-	poetry install
-
-install_service:
-	@echo "Install Service file"
-	cp $(SERVICE_FILE) $(SYSTEMD_LIB_DIR)
-	ln -s $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE) $(SYSTEMD_DIR)/$(SERVICE_FILE) || true
-	systemctl daemon-reload
-	systemctl enable $(SYSTEMD_DIR)/$(SERVICE_FILE)
-	systemctl start $(SERVICE_FILE)
+	apt install python3-venv -y
+	poetry export --without-hashes -f requirements.txt -o requirements.txt
+	python3 -m venv venv && . venv/bin/activate
+	pip install --no-cache-dir -r requirements.txt
 
 install_open_desk_dash:
 	@echo "Install Service open_desk_dash"
@@ -26,12 +22,19 @@ install_open_desk_dash:
 	cp -R . $(INSTALL_PATH)
 	@systemctl restart $(SERVICE_FILE) || true
 
-uninstall: uninstall_deps uninstall_open_desk_dash uninstall_service
+install_service:
+	@echo "Install Service file"
+	cp $(SERVICE_FILE) $(SYSTEMD_LIB_DIR)
+	systemctl daemon-reload
+	systemctl enable $(SERVICE_FILE)
+	systemctl start $(SERVICE_FILE)
+
+uninstall: uninstall_open_desk_dash uninstall_service
 	@echo "Uninstalled Desktop Service"
 
-uninstall_deps:
-	@echo "Uninstall open_desk_dash dependencies"
-	@echo "Fuck knows how"
+uninstall_open_desk_dash:
+	@echo "Uninstall Service open_desk_dash"
+	rm -rf $(INSTALL_PATH)
 
 uninstall_service:
 	@echo "Uninstall Service file"
@@ -41,9 +44,9 @@ uninstall_service:
 	rm -f $(SYSTEMD_LIB_DIR)/$(SERVICE_FILE)
 	systemctl daemon-reload
 
-uninstall_open_desk_dash:
-	@echo "Uninstall Service open_desk_dash"
-	rm -rf $(INSTALL_PATH)
+dev_setup:
+	poetry config --local
+	poetry install
 
 run:
 	poetry run gunicorn --workers 1 --bind 0.0.0.0:5001 --chdir ./open_desk_dash/ service:ODDash --log-level info

@@ -590,7 +590,7 @@ fade {
 }
 .modal-content {
   position: relative;
-  background-color: #fff;
+  background-color: var(--main-text-color);
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
   border: 1px solid #999;
@@ -607,7 +607,7 @@ fade {
   bottom: 0;
   left: 0;
   z-index: 1040;
-  background-color: #000;
+  background-color: var(--main-bg-color);
 }
 .modal-backdrop.fade {
   filter: alpha(opacity=0);

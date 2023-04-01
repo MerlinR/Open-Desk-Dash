@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 WorkingDirectory=/opt/opendeskdash
-ExecStart=/opt/opendeskdash/venv/bin/gunicorn --workers 2 --bind 0.0.0.0:4500 --chdir /opt/opendeskdash/open_desk_dash service:ODDash
+ExecStart=/opt/opendeskdash/venv/bin/gunicorn --workers 1 --bind 0.0.0.0:4500 --chdir /opt/opendeskdash/open_desk_dash service:ODDash
 KillMode=mixed
 Restart=always
 RestartSec=1
